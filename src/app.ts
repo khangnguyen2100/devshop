@@ -3,7 +3,6 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-
 import config from 'src/config';
 import errorHandler from 'src/middleware/errorHandler';
 import fourOhFour from 'src/middleware/fourOhFour';
