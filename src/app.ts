@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import compression from 'compression';
 import config from 'src/config';
 import errorHandler from 'src/middleware/errorHandler';
 import fourOhFour from 'src/middleware/fourOhFour';
@@ -23,7 +24,8 @@ app.use(
 );
 
 app.use(helmet());
-app.use(morgan('tiny'));
+app.use(morgan('dev'));
+app.use(compression());
 
 // Apply routes before error handling
 app.use('/', root);
