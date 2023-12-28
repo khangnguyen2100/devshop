@@ -1,5 +1,5 @@
 import { ErrorRequestHandler } from 'express';
-import config from 'src/config';
+import configEnv from 'src/configs/config.env';
 
 /**
  * 500 response & log when errors are raised.
@@ -7,7 +7,7 @@ import config from 'src/config';
 const errorHandler: ErrorRequestHandler = (err, _req, res) => {
   console.error(err);
   return res.status(500).json({
-    message: config.nodeEnv === 'production' ? 'unknown error' : `${err}`,
+    message: configEnv.nodeEnv === 'production' ? 'unknown error' : `${err}`,
   });
 };
 

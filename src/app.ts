@@ -4,10 +4,13 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
-import config from 'src/config';
+import configEnv from 'src/configs/config.env';
 import errorHandler from 'src/middleware/errorHandler';
 import fourOhFour from 'src/middleware/fourOhFour';
 import root from 'src/routes/root';
+
+import 'src/configs/db';
+import { checkOverload, countConnectDb } from './helpers/checkDbConnect';
 
 const app = express();
 
@@ -19,13 +22,17 @@ app.use(cookieParser());
 app.use(
   cors({
     // @ts-ignore no-implicit-any
-    origin: config.clientCorsOrigins[config.nodeEnv] ?? '*',
+    origin: configEnv.clientCorsOrigins[configEnv.nodeEnv] ?? '*',
   }),
 );
 
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(compression());
+
+// Init DB
+countConnectDb();
+checkOverload();
 
 // Apply routes before error handling
 app.use('/', root);
