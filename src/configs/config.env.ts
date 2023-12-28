@@ -1,16 +1,17 @@
-import packageJson from '../package.json';
+import packageJson from '../../package.json';
 
 /**
  * Pattern for config is:
  * key: process.env['KEY'] ?? default
  */
-const config = {
+const configEnv = {
   version: packageJson.version,
   name: packageJson.name,
   description: packageJson.description,
 
   nodeEnv: process.env['NODE_ENV'] ?? 'development',
   port: process.env['PORT'] ?? 3000,
+  mongoUri: process.env['MONGO_URI'] ?? 'mongodb://localhost:27017',
 
   clientCorsOrigins: {
     test: process.env['DEV_ORIGIN'] ?? '*',
@@ -19,4 +20,4 @@ const config = {
   },
 };
 
-export default config;
+export default configEnv;

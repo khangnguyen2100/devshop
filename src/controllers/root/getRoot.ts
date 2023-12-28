@@ -1,14 +1,14 @@
 import { RequestHandler } from 'express';
-import config from 'src/config';
+import configEnv from 'src/configs/config.env';
 
 /**
  * Health check endpoint
  */
 const getRoot: RequestHandler = (_req, res) => {
   res.status(200).json({
-    name: config.name,
-    description: config.description,
-    version: config.version,
+    name: configEnv.name,
+    description: configEnv.description,
+    version: configEnv.version,
   });
 };
 

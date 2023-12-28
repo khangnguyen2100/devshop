@@ -1,9 +1,9 @@
 import app from 'src/app';
-import config from 'src/config';
+import configEnv from 'src/configs/config.env';
 
-app.listen(config.port, () => {
-  console.log(`🚀 ${config.name} ${config.version} 🚀`);
+app.listen(configEnv.port, () => {
+  console.log(`🚀 ${configEnv.name} ${configEnv.version} 🚀`);
   console.log(
-    `🚀 Listening on ${config.port} with NODE_ENV=${config.nodeEnv} 🚀`,
+    `🚀 Listening on ${configEnv.port} with NODE_ENV=${configEnv.nodeEnv} 🚀`,
   );
 });
