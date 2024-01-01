@@ -1,0 +1,10 @@
+### sign up
+@dev_root=http://localhost:3000/api/v1
+POST {{dev_root}}/auth/sign-up
+Content-Type: application/json
+
+{
+  "email": "admimn23@gmail.com",
+  "password": "123456",
+  "name": "khang"
+}

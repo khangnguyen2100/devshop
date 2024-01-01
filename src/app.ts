@@ -7,7 +7,7 @@ import compression from 'compression';
 import configEnv from 'src/configs/config.env';
 import errorHandler from 'src/middleware/errorHandler';
 import fourOhFour from 'src/middleware/fourOhFour';
-import root from 'src/routes/root';
+import routes from 'src/routes';
 
 import 'src/configs/db';
 import { checkOverload, countConnectDb } from './helpers/checkDbConnect';
@@ -32,10 +32,10 @@ app.use(compression());
 
 // Init DB
 countConnectDb();
-checkOverload();
+// checkOverload();
 
 // Apply routes before error handling
-app.use('/', root);
+app.use('/api', routes);
 
 // Apply error handling last
 app.use(fourOhFour);
