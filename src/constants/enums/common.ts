@@ -3,10 +3,12 @@ export const DOCUMENT_NAMES = {
   PRODUCT: 'Product',
   KEY: 'KeyToken',
   ORDER: 'Order',
+  APIKEY: 'ApiKey',
 };
 export const COLLECTION_NAMES = {
   SHOP: 'Shops',
   PRODUCT: 'Products',
   KEY: 'KeyTokens',
   ORDER: 'Orders',
+  APIKEY: 'ApiKeys',
 };

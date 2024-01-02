@@ -2,9 +2,10 @@
 @dev_root=http://localhost:3000/api/v1
 POST {{dev_root}}/auth/sign-up
 Content-Type: application/json
+x-api-key: e25ea99301b98f3e5da4ca0c88efa14dae9ca88de9adac972b71da758c6a607164cfe26410decf2c075b0eb6b6398d9fa976c82ade8ec5819e3fc2a09d7499f7
 
 {
-  "email": "admimn23@gmail.com",
+  "email": "admimn232@gmail.com",
   "password": "123456",
   "name": "khang"
 }
