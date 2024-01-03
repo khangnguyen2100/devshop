@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import apikeyService from 'src/services/apikey.service';
+import ApiKeyService from 'src/services/apikey.service';
 
 const HEADER = {
   API_KEY: 'x-api-key',
@@ -17,7 +17,7 @@ export const checkApiKey: RequestHandler = async (req, res, next) => {
     }
 
     // check api key in db
-    const apiKey = await apikeyService.findApiKey(key);
+    const apiKey = await ApiKeyService.findApiKey(key);
     if (!apiKey) {
       return res.status(403).json({
         message: 'Forbidden',

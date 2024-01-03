@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import configEnv from 'src/configs/config.env';
 
 class ShopController {
-  getShop: RequestHandler = async (_req, res) => {
+  static getShop: RequestHandler = async (_req, res) => {
     try {
       return res.status(200).json({
         name: configEnv.name,
@@ -15,4 +15,4 @@ class ShopController {
   };
 }
 
-export default new ShopController();
+export default ShopController;

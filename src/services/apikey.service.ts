@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import apikeyModel from 'src/models/apikey.model';
 class ApiKeyService {
   // for testing
-  createApiKey = async () => {
+  static createApiKey = async () => {
     try {
       const apiKey = await crypto.randomBytes(64).toString('hex');
       const newApiKey = await apikeyModel.create({
@@ -16,7 +16,7 @@ class ApiKeyService {
       return null;
     }
   };
-  findApiKey = async (key: string) => {
+  static findApiKey = async (key: string) => {
     try {
       const apiKey = await apikeyModel.findOne({ key, status: true });
       return apiKey;
@@ -25,4 +25,4 @@ class ApiKeyService {
     }
   };
 }
-export default new ApiKeyService();
+export default ApiKeyService;

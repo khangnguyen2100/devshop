@@ -1,7 +1,7 @@
 import keyTokenModel from 'src/models/keyToken,model';
 
 class KeyTokenService {
-  createKeyToken = async ({
+  static createKeyToken = async ({
     userId,
     publicKey,
     privateKey,
@@ -24,4 +24,4 @@ class KeyTokenService {
     }
   };
 }
-export default new KeyTokenService();
+export default KeyTokenService;
