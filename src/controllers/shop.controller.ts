@@ -1,17 +1,21 @@
 import { RequestHandler } from 'express';
 import configEnv from 'src/configs/config.env';
+import { OK } from 'src/helpers/success.response';
 
 class ShopController {
   static getShop: RequestHandler = async (_req, res) => {
-    try {
-      return res.status(200).json({
+    new OK({
+      metadata: {
         name: configEnv.name,
         description: configEnv.description,
         version: configEnv.version,
-      });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+      },
+      options: {
+        limit: 10,
+        page: 1,
+        total: 10,
+      },
+    }).send(res);
   };
 }
 

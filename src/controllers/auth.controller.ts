@@ -1,9 +1,13 @@
 import { RequestHandler } from 'express';
+import { Created } from 'src/helpers/success.response';
 import AuthService from 'src/services/auth.service';
 
 class AuthController {
   static signUp: RequestHandler = async (_req, res) => {
-    return res.status(201).json(await AuthService.signUp(_req.body));
+    return new Created({
+      message: 'Shop created successfully!',
+      metadata: await AuthService.signUp(_req.body),
+    }).send(res);
   };
 }
 

@@ -55,8 +55,6 @@ class AuthService {
       );
 
       return {
-        code: 201,
-        message: 'Shop created successfully',
         data: lodash.pick(newShop, ['_id', 'name', 'email', 'roles']),
         accessToken,
         refreshToken,
