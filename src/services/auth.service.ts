@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs';
 import lodash from 'lodash';
 import { shopRole } from 'src/constants/enums/shop';
-import { generateTokens } from 'src/utils/generateTokens';
-import { BadRequestError, UnauthorizedError } from 'src/helpers/core/error.response';
+import storeTokens from 'src/helpers/auth/storeTokens';
+import {
+  BadRequestError,
+  UnauthorizedError,
+} from 'src/helpers/core/error.response';
 import shopModel from 'src/models/shop.model';
-import createKeyTokens from 'src/utils/generateKeys';
-
-import keyTokenService from './keyToken.service';
 
 type SignUpBody = {
   name: string | null;
@@ -43,26 +43,16 @@ class AuthService {
       throw new BadRequestError('Create shop error');
     }
 
-    // generate key pair to use with this shop
-    const { privateKey, publicKey } = createKeyTokens();
-
-    // get access and refresh token with private key
-    const { accessToken, refreshToken } = await generateTokens(
-      { userId: newShop._id.toString(), email: newShop.email },
-      publicKey, // public key to verify token
-      privateKey, // private key to sign token
-    );
-
-    // store token to db
-    const publickeyStored = await keyTokenService.createKeyToken({
+    // generate and store tokens
+    const payload = {
       userId: newShop._id.toString(),
-      publicKey,
-      privateKey,
-      refreshToken: refreshToken || undefined,
-    });
-    if (!publickeyStored) {
-      throw new BadRequestError('Create key token error');
-    }
+      email: newShop.email,
+      roles: newShop.roles,
+    };
+    const { accessToken, refreshToken } = await storeTokens(
+      payload,
+      newShop._id.toString(),
+    );
 
     return {
       data: lodash.pick(newShop, ['_id', 'name', 'email', 'roles']),
@@ -97,28 +87,17 @@ class AuthService {
       throw new UnauthorizedError('Password is incorrect');
     }
 
-    // generate key pair to use with this shop
-    const { privateKey, publicKey } = createKeyTokens();
-
-    // Create AT, RT and save to db
-    const { accessToken, refreshToken } = await generateTokens(
-      { userId: findShop._id.toString(), email: findShop.email },
-      publicKey, // public key to verify token
-      privateKey, // private key to sign token
-    );
-
-    // store token to db
-    const publickeyStored = await keyTokenService.createKeyToken({
+    // generate and store tokens
+    const payload = {
       userId: findShop._id.toString(),
-      publicKey,
-      privateKey,
-      refreshToken: refreshToken || undefined,
-      refreshTokenUsed: currentRefreshToken || undefined,
-    });
-
-    if (!publickeyStored) {
-      throw new BadRequestError('Stored key token error');
-    }
+      email: findShop.email,
+      roles: findShop.roles,
+    };
+    const { accessToken, refreshToken } = await storeTokens(
+      payload,
+      findShop._id.toString(),
+      currentRefreshToken,
+    );
 
     return {
       data: lodash.pick(findShop, ['_id', 'name', 'email', 'roles']),
