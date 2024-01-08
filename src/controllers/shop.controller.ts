@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import configEnv from 'src/configs/config.env';
-import { OK } from 'src/helpers/success.response';
+import { OK } from 'src/helpers/core/success.response';
 
 class ShopController {
   static getShop: RequestHandler = async (_req, res) => {

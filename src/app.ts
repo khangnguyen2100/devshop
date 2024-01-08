@@ -8,7 +8,7 @@ import configEnv from 'src/configs/config.env';
 import routes from 'src/routes';
 
 import 'src/configs/db';
-import { countConnectDb } from './helpers/checkDbConnect';
+import { countConnectDb } from './helpers/db/checkDbConnect';
 
 const app = express();
 

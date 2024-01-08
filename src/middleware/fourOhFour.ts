@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { ErrorResponse } from 'src/helpers/error.response';
+import { ErrorResponse } from 'src/helpers/core/error.response';
 
 /**
  * JSON 404 response

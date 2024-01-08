@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { Created, SuccessResponse } from 'src/helpers/success.response';
+import { Created, SuccessResponse } from 'src/helpers/core/success.response';
 import AuthService from 'src/services/auth.service';
 
 class AuthController {

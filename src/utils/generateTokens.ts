@@ -1,5 +1,5 @@
 import JWT from 'jsonwebtoken';
-export const createTokenPair = async (
+export const generateTokens = async (
   payload: object | string,
   publicKey: string,
   privateKey: string,

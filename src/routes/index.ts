@@ -2,7 +2,7 @@ import express from 'express';
 import {
   checkApiKey,
   checkApiPermission,
-} from 'src/helpers/checkApiPermission';
+} from 'src/helpers/auth/checkApiPermission';
 import { errorHandler } from 'src/middleware/errorHandler';
 import fourOhFour from 'src/middleware/fourOhFour';
 import v1Routes from 'src/routes/v1';

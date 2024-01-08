@@ -1,10 +1,10 @@
 import bcrypt from 'bcryptjs';
 import lodash from 'lodash';
 import { shopRole } from 'src/constants/enums/shop';
-import { createTokenPair } from 'src/helpers/createTokenPair';
-import { BadRequestError, UnauthorizedError } from 'src/helpers/error.response';
+import { generateTokens } from 'src/utils/generateTokens';
+import { BadRequestError, UnauthorizedError } from 'src/helpers/core/error.response';
 import shopModel from 'src/models/shop.model';
-import createKeyTokens from 'src/utils/createKeyTokens';
+import createKeyTokens from 'src/utils/generateKeys';
 
 import keyTokenService from './keyToken.service';
 
@@ -47,7 +47,7 @@ class AuthService {
     const { privateKey, publicKey } = createKeyTokens();
 
     // get access and refresh token with private key
-    const { accessToken, refreshToken } = await createTokenPair(
+    const { accessToken, refreshToken } = await generateTokens(
       { userId: newShop._id.toString(), email: newShop.email },
       publicKey, // public key to verify token
       privateKey, // private key to sign token
@@ -101,7 +101,7 @@ class AuthService {
     const { privateKey, publicKey } = createKeyTokens();
 
     // Create AT, RT and save to db
-    const { accessToken, refreshToken } = await createTokenPair(
+    const { accessToken, refreshToken } = await generateTokens(
       { userId: findShop._id.toString(), email: findShop.email },
       publicKey, // public key to verify token
       privateKey, // private key to sign token
