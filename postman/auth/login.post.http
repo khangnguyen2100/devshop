@@ -1,0 +1,10 @@
+### sign up
+@dev_root=http://localhost:3000/api/v1
+POST {{dev_root}}/auth/login
+Content-Type: application/json
+Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTk1OWJmMjM1NGQ5NjRjNWM4YTgzYTQiLCJlbWFpbCI6ImFiY0BnbWFpbC5jb20iLCJpYXQiOjE3MDQzMDM3NzMsImV4cCI6MTcwNDkwODU3M30.h-ljXtQPlf2BMQKLInVgmBDqgsH74rd_r8nmE9MnRiM
+
+{
+  "email": "abc@gmail.com",
+  "password": "123456"
+}

@@ -53,8 +53,4 @@ shopSchema.pre('save', async function (next) {
   next();
 });
 
-shopSchema.methods.comparePassword = async function (enteredPassword: string) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
 export default mongoose.model(DOCUMENT_NAMES.SHOP, shopSchema);
