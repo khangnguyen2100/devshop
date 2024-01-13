@@ -14,15 +14,6 @@ export const generateTokens = async (
       expiresIn: configEnv.refreshTokenExpiresIn,
     });
 
-    // verify tokens
-    JWT.verify(accessToken, publicKey, (err, decode) => {
-      if (err) {
-        console.error('ERROR: verify token::', err);
-      } else {
-        console.log('decode token::', decode);
-      }
-    });
-
     return { accessToken, refreshToken };
   } catch (error) {
     console.error('ERROR: createTokenPair::', error);

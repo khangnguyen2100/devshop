@@ -1,9 +1,5 @@
 import { RequestHandler } from 'express';
-import {
-  LOGIN_MESSAGES,
-  LOGOUT_MESSAGES,
-  SIGNUP_MESSAGES,
-} from 'src/constants/messages';
+import { AUTH_MESSAGES } from 'src/constants/messages';
 import { KeyToken } from 'src/constants/types/KeyToken';
 import { Created, SuccessResponse } from 'src/helpers/core/success.response';
 import AuthService from 'src/services/auth.service';
@@ -11,7 +7,7 @@ import AuthService from 'src/services/auth.service';
 class AuthController {
   static signUp: RequestHandler = async (req, res) => {
     return new Created({
-      message: SIGNUP_MESSAGES.SUCCESS,
+      message: AUTH_MESSAGES.SIGNUP_SUCCESS,
       metadata: await AuthService.signUp(req.body),
     }).send(res);
   };
@@ -20,7 +16,7 @@ class AuthController {
     const { body, cookies } = req;
 
     return new SuccessResponse({
-      message: LOGIN_MESSAGES.SUCCESS,
+      message: AUTH_MESSAGES.LOGIN_SUCCESS,
       metadata: await AuthService.login({
         ...body,
         refreshToken: cookies.refreshToken || null,
@@ -32,8 +28,17 @@ class AuthController {
     const keyStored = (req as any).keyStored as KeyToken;
 
     return new SuccessResponse({
-      message: LOGOUT_MESSAGES.SUCCESS,
+      message: AUTH_MESSAGES.LOGOUT_SUCCESS,
       metadata: await AuthService.logout(keyStored),
+    }).send(res);
+  };
+
+  static refreshToken: RequestHandler = async (req, res) => {
+    const { cookies } = req;
+
+    return new SuccessResponse({
+      message: AUTH_MESSAGES.REFRESH_TOKEN_SUCCESS,
+      metadata: await AuthService.getRefreshToken(cookies.refreshToken || null),
     }).send(res);
   };
 }

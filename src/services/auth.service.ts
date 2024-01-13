@@ -1,21 +1,20 @@
 import bcrypt from 'bcryptjs';
 import lodash from 'lodash';
 import { shopRole } from 'src/constants/enums/shop';
-import {
-  COMMON_MESSAGES,
-  LOGIN_MESSAGES,
-  LOGOUT_MESSAGES,
-  SIGNUP_MESSAGES,
-} from 'src/constants/messages';
+import { COMMON_MESSAGES, AUTH_MESSAGES } from 'src/constants/messages';
 import { KeyToken } from 'src/constants/types/KeyToken';
 import storeTokens from 'src/helpers/auth/storeTokens';
 import {
   BadRequestError,
+  ForbiddenError,
   UnauthorizedError,
 } from 'src/helpers/core/error.response';
 import shopModel from 'src/models/shop.model';
+import verifyTokens from 'src/utils/verifyTokens';
+import Shop from 'src/constants/types/Shop';
 
 import KeyTokenService from './keyToken.service';
+import { generateTokens } from 'src/utils/generateTokens';
 
 type SignUpBody = {
   name: string | null;
@@ -38,7 +37,7 @@ class AuthService {
     // Check if email already exists
     const findShop = await shopModel.findOne({ email }).lean();
     if (findShop) {
-      throw new BadRequestError(SIGNUP_MESSAGES.EMAIL_EXISTED);
+      throw new BadRequestError(AUTH_MESSAGES.EMAIL_EXISTED);
     }
 
     // create new shop
@@ -49,7 +48,7 @@ class AuthService {
       roles: [shopRole.VIEW],
     });
     if (!newShop) {
-      throw new BadRequestError(SIGNUP_MESSAGES.ERROR);
+      throw new BadRequestError(AUTH_MESSAGES.SIGNUP_ERROR);
     }
 
     // generate and store tokens
@@ -87,13 +86,13 @@ class AuthService {
       .select('+password')
       .lean();
     if (!findShop) {
-      throw new UnauthorizedError(LOGIN_MESSAGES.EMAIL_NOT_REGISTERED);
+      throw new UnauthorizedError(AUTH_MESSAGES.SHOP_NOT_REGISTERED);
     }
 
     // Compare password
     const isPwMatch = await bcrypt.compare(enteredPassword, findShop.password);
     if (!isPwMatch) {
-      throw new UnauthorizedError(LOGIN_MESSAGES.PASSWORD_INCORRECT);
+      throw new UnauthorizedError(AUTH_MESSAGES.PASSWORD_INCORRECT);
     }
 
     // generate and store tokens
@@ -117,9 +116,74 @@ class AuthService {
   static logout = async (keyStored: KeyToken) => {
     const deletedKey = await KeyTokenService.removeById(keyStored._id);
     if (!deletedKey) {
-      throw new BadRequestError(LOGOUT_MESSAGES.ERROR);
+      throw new BadRequestError(AUTH_MESSAGES.LOGOUT_ERROR);
     }
     return {};
+  };
+  static getRefreshToken = async (refreshToken: string | null) => {
+    if (!refreshToken) throw new BadRequestError();
+
+    const foundTokenUsed =
+      await KeyTokenService.findByUsedRefreshToken(refreshToken);
+
+    console.log('foundTokenUsed:', foundTokenUsed);
+    if (foundTokenUsed) {
+      // this refresh token is being used => maybe this user is being hacked
+
+      // decode to get what user
+      const decodeData = await verifyTokens(
+        refreshToken,
+        foundTokenUsed.privateKey,
+      );
+      console.log('decodeData:', decodeData);
+      await KeyTokenService.removeById(foundTokenUsed._id);
+      throw new ForbiddenError(
+        'Something wrong happened. Please try login again.',
+      );
+    }
+    // token is not used => check is stored in db or not
+    const findKeyStored =
+      await KeyTokenService.findByRefreshToken(refreshToken);
+    console.log('findKeyStored:', findKeyStored);
+    if (!findKeyStored) {
+      throw new UnauthorizedError(AUTH_MESSAGES.NOT_LOGGED_IN);
+    }
+    const decodeData = await verifyTokens(
+      refreshToken,
+      findKeyStored.privateKey,
+    );
+    console.log('decodeData:', decodeData);
+
+    const shopInfo = findKeyStored.user as unknown as Shop;
+    const payload = {
+      userId: shopInfo._id.toString(),
+      email: shopInfo.email,
+      roles: shopInfo.roles,
+    };
+    const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
+      payload,
+      findKeyStored.publicKey, // public key to verify token
+      findKeyStored.privateKey, // private key to sign token
+    );
+
+    // store token to db
+    const publickeyStored = await KeyTokenService.createKeyToken({
+      userId: shopInfo._id.toString(),
+      publicKey: findKeyStored.publicKey,
+      privateKey: findKeyStored.privateKey,
+      refreshToken: newRefreshToken || undefined,
+      refreshTokenUsed: refreshToken || undefined,
+    });
+
+    if (!publickeyStored) {
+      throw new BadRequestError('Create key token error');
+    }
+
+    return {
+      user: payload,
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
   };
 }
 export default AuthService;

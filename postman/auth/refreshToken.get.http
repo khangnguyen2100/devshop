@@ -1,0 +1,8 @@
+### sign up
+@dev_root=http://localhost:3000/api/v1
+GET {{dev_root}}/auth/refresh-token
+Content-Type: application/json
+x-api-key: e25ea99301b98f3e5da4ca0c88efa14dae9ca88de9adac972b71da758c6a607164cfe26410decf2c075b0eb6b6398d9fa976c82ade8ec5819e3fc2a09d7499f7
+x-client-id: 65a28a2dd14367355e464798
+Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWEyOGEyZGQxNDM2NzM1NWU0NjQ3OTgiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGVzIjpbIlZJRVciXSwiaWF0IjoxNzA1MTU5ODA4LCJleHAiOjE3MDc3NTE4MDh9.1SAaCGJNQr3s9-C59trxYWzq1MN8PR3UrnkZbNIY76Y
+

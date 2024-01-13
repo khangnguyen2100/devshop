@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { HEADER } from 'src/constants/enums/common';
+import { AUTHENTICATION_MESSAGES } from 'src/constants/messages/middleware';
 import {
   BadRequestError,
   UnauthorizedError,
 } from 'src/helpers/core/error.response';
 import KeyTokenService from 'src/services/keyToken.service';
 import verifyTokens from 'src/utils/verifyTokens';
-import { AUTHENTICATION_MESSAGES } from 'src/constants/messages/middleware';
+import { AUTH_MESSAGES } from 'src/constants/messages';
 
 import { asyncHandler } from './errorHandler';
 
@@ -28,11 +29,11 @@ const authentication = asyncHandler(
       throw new UnauthorizedError(AUTHENTICATION_MESSAGES.TOKEN_NOT_FOUND);
 
     // verify token
-    await verifyTokens({
-      accessToken,
-      publicKey: keyStored.publicKey,
-      userId,
-    });
+    const decodeData = await verifyTokens(accessToken, keyStored.publicKey);
+    // check token is this user
+    if (decodeData?.userId !== userId) {
+      throw new Error(AUTH_MESSAGES.TOKEN_INVALID);
+    }
 
     (req as any).keyStored = keyStored;
     return next();

@@ -61,5 +61,17 @@ class KeyTokenService {
       return null;
     }
   };
+  static findByUsedRefreshToken = async (refreshToken: string) => {
+    return await keyTokenModel.findOne({
+      refreshTokensUsed: refreshToken,
+    });
+  };
+  static findByRefreshToken = async (refreshToken: string) => {
+    return await keyTokenModel
+      .findOne({
+        refreshToken,
+      })
+      .populate('user');
+  };
 }
 export default KeyTokenService;

@@ -1,6 +1,4 @@
 import COMMON_MESSAGES from './common';
-import SIGNUP_MESSAGES from './auth/signup';
-import LOGIN_MESSAGES from './auth/login';
-import LOGOUT_MESSAGES from './auth/logout';
+import AUTH_MESSAGES from './auth/auth.messages';
 
-export { COMMON_MESSAGES, SIGNUP_MESSAGES, LOGIN_MESSAGES, LOGOUT_MESSAGES };
+export { COMMON_MESSAGES, AUTH_MESSAGES };
