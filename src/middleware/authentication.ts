@@ -6,6 +6,7 @@ import {
 } from 'src/helpers/core/error.response';
 import KeyTokenService from 'src/services/keyToken.service';
 import verifyTokens from 'src/utils/verifyTokens';
+import { AUTHENTICATION_MESSAGES } from 'src/constants/messages/middleware';
 
 import { asyncHandler } from './errorHandler';
 
@@ -13,24 +14,27 @@ const authentication = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     // get user id
     const userId = req.headers[HEADER.CLIENT_ID] as string;
-    if (!userId) throw new UnauthorizedError('User Id not found!');
+    if (!userId)
+      throw new UnauthorizedError(AUTHENTICATION_MESSAGES.USERID_NOT_FOUND);
 
     // get key stored from this user
     const keyStored = await KeyTokenService.findById(userId);
-    if (!keyStored) throw new BadRequestError("You're not logged in yet!");
+    if (!keyStored)
+      throw new BadRequestError(AUTHENTICATION_MESSAGES.NOT_LOGGED_IN);
 
     // get access token
     const accessToken = req.headers[HEADER.AUTHORIZATION] as string;
-    if (!accessToken) throw new UnauthorizedError('Token not found!');
+    if (!accessToken)
+      throw new UnauthorizedError(AUTHENTICATION_MESSAGES.TOKEN_NOT_FOUND);
 
     // verify token
-    const payload = await verifyTokens({
+    await verifyTokens({
       accessToken,
       publicKey: keyStored.publicKey,
       userId,
     });
+
     (req as any).keyStored = keyStored;
-    console.log('payload:', payload);
     return next();
   },
 );

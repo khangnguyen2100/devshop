@@ -1,4 +1,5 @@
 import JWT from 'jsonwebtoken';
+import configEnv from 'src/configs/config.env';
 export const generateTokens = async (
   payload: object | string,
   publicKey: string,
@@ -7,10 +8,10 @@ export const generateTokens = async (
   try {
     // generate tokens
     const accessToken = await JWT.sign(payload, publicKey, {
-      expiresIn: '2 days',
+      expiresIn: configEnv.accessTokenExpiresIn,
     });
     const refreshToken = await JWT.sign(payload, privateKey, {
-      expiresIn: '7 days',
+      expiresIn: configEnv.refreshTokenExpiresIn,
     });
 
     // verify tokens

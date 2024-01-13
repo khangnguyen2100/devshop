@@ -17,7 +17,6 @@ const storeTokens = async (
 ) => {
   // generate key pair to use with this shop
   const { privateKey, publicKey } = generateKeys();
-  console.log('publicKey created:', publicKey)
 
   // get access and refresh token with private key
   const { accessToken, refreshToken } = await generateTokens(

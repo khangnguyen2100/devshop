@@ -2,22 +2,20 @@ import { RequestHandler } from 'express';
 import { HEADER } from 'src/constants/enums/common';
 import ApiKeyService from 'src/services/apikey.service';
 
+import { ForbiddenError } from '../core/error.response';
+
 export const checkApiKey: RequestHandler = async (req, res, next) => {
   try {
     // check api key in header
     const key = req.headers[HEADER.API_KEY]?.toString();
     if (!key) {
-      return res.status(403).json({
-        message: 'Forbidden',
-      });
+      throw new ForbiddenError();
     }
 
     // check api key in db
     const apiKey = await ApiKeyService.findApiKey(key);
     if (!apiKey) {
-      return res.status(403).json({
-        message: 'Forbidden',
-      });
+      throw new ForbiddenError();
     }
 
     (req as any).apiKey = apiKey;
@@ -35,9 +33,7 @@ export const checkApiPermission = (permission: string): RequestHandler => {
     const apiKey = (req as any).apiKey;
 
     if (!permission || !apiKey.permissions.includes(permission)) {
-      return res.status(403).json({
-        message: 'Permission denied',
-      });
+      throw new ForbiddenError('Permission denied');
     }
     return next();
   };

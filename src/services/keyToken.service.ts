@@ -9,7 +9,6 @@ class KeyTokenService {
       .lean();
   };
   static removeById = async (_id: Types.ObjectId) => {
-    console.log('id:', _id);
     return await keyTokenModel.deleteOne({
       _id,
     });

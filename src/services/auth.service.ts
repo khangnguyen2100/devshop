@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import lodash from 'lodash';
 import { shopRole } from 'src/constants/enums/shop';
 import {
-  COMMON,
+  COMMON_MESSAGES,
   LOGIN_MESSAGES,
   LOGOUT_MESSAGES,
   SIGNUP_MESSAGES,
@@ -33,7 +33,7 @@ class AuthService {
     const { name, email, password } = body;
 
     if (!name || !email || !password) {
-      throw new BadRequestError(COMMON.MISSING_REQUIRED_FIELD);
+      throw new BadRequestError(COMMON_MESSAGES.MISSING_REQUIRED_FIELD);
     }
     // Check if email already exists
     const findShop = await shopModel.findOne({ email }).lean();
@@ -78,7 +78,7 @@ class AuthService {
       refreshToken: currentRefreshToken,
     } = body;
     if (!enteredEmail || !enteredPassword) {
-      throw new BadRequestError(COMMON.MISSING_REQUIRED_FIELD);
+      throw new BadRequestError(COMMON_MESSAGES.MISSING_REQUIRED_FIELD);
     }
 
     // Check if email in db

@@ -1,4 +1,5 @@
 import JWT from 'jsonwebtoken';
+import { LOGIN_MESSAGES } from 'src/constants/messages';
 import { JWTPayload } from 'src/constants/types/Shop';
 import { UnauthorizedError } from 'src/helpers/core/error.response';
 
@@ -12,22 +13,16 @@ const verifyTokens = async ({ accessToken, publicKey, userId }: Props) => {
   try {
     const data = JWT.verify(accessToken, publicKey, (err, decode) => {
       // check token is invalid or expired
-      if (err) {
-        console.log('err:', err);
-        throw new Error(err.message);
-      }
       const decodeData = decode as JWTPayload;
-      if (decodeData?.userId !== userId) {
-        throw new Error(
-          'Token is invalid! Please login again to get a new one.',
-        );
+      if (decodeData?.userId !== userId || err) {
+        throw new Error();
       }
-      console.log('decodeData:', decodeData);
+
       return decodeData;
     });
     return data;
   } catch (error: any) {
-    throw new UnauthorizedError(error.message);
+    throw new UnauthorizedError(LOGIN_MESSAGES.TOKEN_INVALID);
   }
 };
 
