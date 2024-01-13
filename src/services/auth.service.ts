@@ -8,6 +8,9 @@ import {
 } from 'src/helpers/core/error.response';
 import shopModel from 'src/models/shop.model';
 
+import KeyTokenService from './keyToken.service';
+import { KeyToken } from 'src/constants/types/KeyToken';
+
 type SignUpBody = {
   name: string | null;
   email: string | null;
@@ -104,6 +107,12 @@ class AuthService {
       accessToken,
       refreshToken,
     };
+  };
+  static logout = async (keyStored: KeyToken) => {
+    console.log('keyStored:', keyStored);
+    const deletedKey = await KeyTokenService.removeById(keyStored._id);
+    console.log('deletedKey:', deletedKey);
+    return deletedKey;
   };
 }
 export default AuthService;

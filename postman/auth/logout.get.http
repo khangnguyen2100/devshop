@@ -1,0 +1,12 @@
+### sign up
+@dev_root=http://localhost:3000/api/v1
+GET {{dev_root}}/auth/logout
+Content-Type: application/json
+x-client-id: 65959bf2354d964c5c8a83a4
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTk1OWJmMjM1NGQ5NjRjNWM4YTgzYTQiLCJlbWFpbCI6ImFiY0BnbWFpbC5jb20iLCJyb2xlcyI6WyJWSUVXIl0sImlhdCI6MTcwNTEyNTA5MywiZXhwIjoxNzA1Mjk3ODkzfQ.ZjkJyVQ_XXgvPNFekYUms7NwFiwrWZn6gj-OOxjBBts
+Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTk1OWJmMjM1NGQ5NjRjNWM4YTgzYTQiLCJlbWFpbCI6ImFiY0BnbWFpbC5jb20iLCJyb2xlcyI6WyJWSUVXIl0sImlhdCI6MTcwNTEyNTA5MywiZXhwIjoxNzA1NzI5ODkzfQ.cKCvhDpjqw2VJKJ6lAOsonXm42YjKovY8UmbM0jZxVQ
+
+{
+  "email": "abc@gmail.com",
+  "password": "123456"
+}

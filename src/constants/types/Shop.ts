@@ -9,5 +9,9 @@ type Shop = {
   createdAt: Date;
   updatedAt: Date;
 };
-
+export type JWTPayload = {
+  userId: string;
+  email: string;
+  roles: string[];
+};
 export default Shop;

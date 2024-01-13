@@ -1,10 +1,6 @@
 import { RequestHandler } from 'express';
+import { HEADER } from 'src/constants/enums/common';
 import ApiKeyService from 'src/services/apikey.service';
-
-const HEADER = {
-  API_KEY: 'x-api-key',
-  AUTHORIZATION: 'authorization',
-};
 
 export const checkApiKey: RequestHandler = async (req, res, next) => {
   try {
