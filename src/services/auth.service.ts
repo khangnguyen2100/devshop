@@ -1,6 +1,13 @@
 import bcrypt from 'bcryptjs';
 import lodash from 'lodash';
 import { shopRole } from 'src/constants/enums/shop';
+import {
+  COMMON,
+  LOGIN_MESSAGES,
+  LOGOUT_MESSAGES,
+  SIGNUP_MESSAGES,
+} from 'src/constants/messages';
+import { KeyToken } from 'src/constants/types/KeyToken';
 import storeTokens from 'src/helpers/auth/storeTokens';
 import {
   BadRequestError,
@@ -9,7 +16,6 @@ import {
 import shopModel from 'src/models/shop.model';
 
 import KeyTokenService from './keyToken.service';
-import { KeyToken } from 'src/constants/types/KeyToken';
 
 type SignUpBody = {
   name: string | null;
@@ -27,12 +33,12 @@ class AuthService {
     const { name, email, password } = body;
 
     if (!name || !email || !password) {
-      throw new BadRequestError('Missing required fields');
+      throw new BadRequestError(COMMON.MISSING_REQUIRED_FIELD);
     }
     // Check if email already exists
     const findShop = await shopModel.findOne({ email }).lean();
     if (findShop) {
-      throw new BadRequestError('Email already exists');
+      throw new BadRequestError(SIGNUP_MESSAGES.EMAIL_EXISTED);
     }
 
     // create new shop
@@ -43,7 +49,7 @@ class AuthService {
       roles: [shopRole.VIEW],
     });
     if (!newShop) {
-      throw new BadRequestError('Create shop error');
+      throw new BadRequestError(SIGNUP_MESSAGES.ERROR);
     }
 
     // generate and store tokens
@@ -72,7 +78,7 @@ class AuthService {
       refreshToken: currentRefreshToken,
     } = body;
     if (!enteredEmail || !enteredPassword) {
-      throw new BadRequestError('Missing required fields');
+      throw new BadRequestError(COMMON.MISSING_REQUIRED_FIELD);
     }
 
     // Check if email in db
@@ -81,13 +87,13 @@ class AuthService {
       .select('+password')
       .lean();
     if (!findShop) {
-      throw new UnauthorizedError('Email are not registered');
+      throw new UnauthorizedError(LOGIN_MESSAGES.EMAIL_NOT_REGISTERED);
     }
 
     // Compare password
     const isPwMatch = await bcrypt.compare(enteredPassword, findShop.password);
     if (!isPwMatch) {
-      throw new UnauthorizedError('Password is incorrect');
+      throw new UnauthorizedError(LOGIN_MESSAGES.PASSWORD_INCORRECT);
     }
 
     // generate and store tokens
@@ -109,10 +115,11 @@ class AuthService {
     };
   };
   static logout = async (keyStored: KeyToken) => {
-    console.log('keyStored:', keyStored);
     const deletedKey = await KeyTokenService.removeById(keyStored._id);
-    console.log('deletedKey:', deletedKey);
-    return deletedKey;
+    if (!deletedKey) {
+      throw new BadRequestError(LOGOUT_MESSAGES.ERROR);
+    }
+    return {};
   };
 }
 export default AuthService;
