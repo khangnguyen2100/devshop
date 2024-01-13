@@ -1,5 +1,5 @@
 const COMMON = {
-  MISSING_REQUIRED_FIELD = 'Missing required field',
+  MISSING_REQUIRED_FIELD: 'Missing required field',
 };
 
 export default COMMON;
