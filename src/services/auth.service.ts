@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs';
 import lodash from 'lodash';
 import { shopRole } from 'src/constants/enums/shop';
-import { COMMON_MESSAGES, AUTH_MESSAGES } from 'src/constants/messages';
+import { AUTH_MESSAGES, COMMON_MESSAGES } from 'src/constants/messages';
 import { KeyToken } from 'src/constants/types/KeyToken';
+import Shop from 'src/constants/types/Shop';
 import storeTokens from 'src/helpers/auth/storeTokens';
 import {
   BadRequestError,
@@ -10,11 +11,9 @@ import {
   UnauthorizedError,
 } from 'src/helpers/core/error.response';
 import shopModel from 'src/models/shop.model';
-import verifyTokens from 'src/utils/verifyTokens';
-import Shop from 'src/constants/types/Shop';
+import { generateTokens } from 'src/utils/generateTokens';
 
 import KeyTokenService from './keyToken.service';
-import { generateTokens } from 'src/utils/generateTokens';
 
 type SignUpBody = {
   name: string | null;
@@ -126,16 +125,9 @@ class AuthService {
     const foundTokenUsed =
       await KeyTokenService.findByUsedRefreshToken(refreshToken);
 
-    console.log('foundTokenUsed:', foundTokenUsed);
     if (foundTokenUsed) {
       // this refresh token is being used => maybe this user is being hacked
 
-      // decode to get what user
-      const decodeData = await verifyTokens(
-        refreshToken,
-        foundTokenUsed.privateKey,
-      );
-      console.log('decodeData:', decodeData);
       await KeyTokenService.removeById(foundTokenUsed._id);
       throw new ForbiddenError(
         'Something wrong happened. Please try login again.',
@@ -144,15 +136,9 @@ class AuthService {
     // token is not used => check is stored in db or not
     const findKeyStored =
       await KeyTokenService.findByRefreshToken(refreshToken);
-    console.log('findKeyStored:', findKeyStored);
     if (!findKeyStored) {
       throw new UnauthorizedError(AUTH_MESSAGES.NOT_LOGGED_IN);
     }
-    const decodeData = await verifyTokens(
-      refreshToken,
-      findKeyStored.privateKey,
-    );
-    console.log('decodeData:', decodeData);
 
     const shopInfo = findKeyStored.user as unknown as Shop;
     const payload = {
