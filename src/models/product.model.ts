@@ -78,7 +78,9 @@ const electronicSchema = new mongoose.Schema(
     collection: 'Electronics',
   },
 );
-export const clothingModel = mongoose.model('clothing', clothingSchema);
-export const electronicModel = mongoose.model('electronic', electronicSchema);
+const productModel = mongoose.model(DOCUMENT_NAMES.PRODUCT, productSchema);
+const electronicModel = mongoose.model('Electronic', electronicSchema);
+const clothingModel = mongoose.model('Clothing', clothingSchema);
 
-export default mongoose.model(DOCUMENT_NAMES.PRODUCT, productSchema);
+export { electronicModel, clothingModel };
+export default productModel;

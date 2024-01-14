@@ -1,7 +1,7 @@
 import { COMMON_MESSAGES } from 'src/constants/messages';
 import TProduct, { TProductType } from 'src/constants/types/Product';
 import { BadRequestError } from 'src/helpers/core/error.response';
-import productModal, { clothingModel } from 'src/models/product.model';
+import productModel, { clothingModel } from 'src/models/product.model';
 
 // define product base class
 class ProductBase {
@@ -37,7 +37,7 @@ class ProductBase {
   }
 
   async createProduct() {
-    return await productModal.create(this);
+    return await productModel.create(this);
   }
 }
 
@@ -77,10 +77,10 @@ class ProductFactory {
     }
     switch (type) {
       case 'clothing':
-        return new ClothingBase(payload);
+        return new ClothingBase(payload).createProduct();
         break;
       case 'electronic':
-        return new ElectronicBase(payload);
+        return new ElectronicBase(payload).createProduct();
         break;
       default:
         throw new BadRequestError(`Invalid Product type: ${type}`);
