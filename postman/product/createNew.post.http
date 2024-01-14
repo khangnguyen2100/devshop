@@ -1,0 +1,7 @@
+### sign up
+@dev_root=http://localhost:3000/api/v1
+POST {{dev_root}}/product/createNew
+Content-Type: application/json
+x-client-id: 65a28a2dd14367355e464798
+x-api-key: e25ea99301b98f3e5da4ca0c88efa14dae9ca88de9adac972b71da758c6a607164cfe26410decf2c075b0eb6b6398d9fa976c82ade8ec5819e3fc2a09d7499f7
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWEyOGEyZGQxNDM2NzM1NWU0NjQ3OTgiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGVzIjpbIlZJRVciXSwiaWF0IjoxNzA1MjA2ODQxLCJleHAiOjE3MDUyOTMyNDF9.RBXTJ9bjA1iaqKJ_BSDN5gFUy75JSh5TVE7WtMLCfik
