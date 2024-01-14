@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { Response } from 'express';
 import lodash from 'lodash';
 import { shopRole } from 'src/constants/enums/shop';
 import { AUTH_MESSAGES, COMMON_MESSAGES } from 'src/constants/messages';
@@ -12,6 +13,7 @@ import {
 } from 'src/helpers/core/error.response';
 import shopModel from 'src/models/shop.model';
 import { generateTokens } from 'src/utils/generateTokens';
+import { setJWTCookies } from 'src/utils/cookieJWT';
 
 import KeyTokenService from './keyToken.service';
 
@@ -27,7 +29,7 @@ type LoginBody = {
 };
 
 class AuthService {
-  static signUp = async (body: SignUpBody) => {
+  static signUp = async (body: SignUpBody, res: Response) => {
     const { name, email, password } = body;
 
     if (!name || !email || !password) {
@@ -60,21 +62,18 @@ class AuthService {
       payload,
       newShop._id.toString(),
     );
+    // set refresh token to cookies
+    setJWTCookies(res, refreshToken);
 
     return {
       data: lodash.pick(newShop, ['_id', 'name', 'email', 'roles']),
       accessToken,
-      refreshToken,
     };
   };
 
-  static login = async (body: LoginBody) => {
+  static login = async (body: LoginBody, res: Response) => {
     // Check inputs
-    const {
-      email: enteredEmail,
-      password: enteredPassword,
-      refreshToken: currentRefreshToken,
-    } = body;
+    const { email: enteredEmail, password: enteredPassword } = body;
     if (!enteredEmail || !enteredPassword) {
       throw new BadRequestError(COMMON_MESSAGES.MISSING_REQUIRED_FIELD);
     }
@@ -103,13 +102,13 @@ class AuthService {
     const { accessToken, refreshToken } = await storeTokens(
       payload,
       findShop._id.toString(),
-      currentRefreshToken,
     );
+    // set refresh token to cookies
+    setJWTCookies(res, refreshToken);
 
     return {
       data: lodash.pick(findShop, ['_id', 'name', 'email', 'roles']),
       accessToken,
-      refreshToken,
     };
   };
   static logout = async (keyStored: KeyToken) => {
@@ -119,8 +118,12 @@ class AuthService {
     }
     return {};
   };
-  static getRefreshToken = async (refreshToken: string | null) => {
-    if (!refreshToken) throw new BadRequestError();
+  static getRefreshToken = async (
+    refreshToken: string | null,
+    res: Response,
+  ) => {
+    if (!refreshToken)
+      throw new BadRequestError('Your token is not found. Please login again.');
 
     const foundTokenUsed =
       await KeyTokenService.findByUsedRefreshToken(refreshToken);
@@ -161,14 +164,15 @@ class AuthService {
       refreshTokenUsed: refreshToken || undefined,
     });
 
-    if (!publickeyStored) {
+    if (!publickeyStored || !newRefreshToken || !accessToken) {
       throw new BadRequestError('Create key token error');
     }
+    // set refresh token to cookies
+    setJWTCookies(res, newRefreshToken);
 
     return {
       user: payload,
       accessToken,
-      refreshToken: newRefreshToken,
     };
   };
 }

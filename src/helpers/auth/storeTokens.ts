@@ -24,6 +24,9 @@ const storeTokens = async (
     publicKey, // public key to verify token
     privateKey, // private key to sign token
   );
+  if (!accessToken || !refreshToken) {
+    throw new BadRequestError('Create key token error');
+  }
 
   // store token to db
   const publickeyStored = await KeyTokenService.createKeyToken({

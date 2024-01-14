@@ -16,6 +16,8 @@ const configEnv = {
   // jwt
   accessTokenExpiresIn: process.env['JWT_ACCESS_EXPIRES_IN'] ?? '1h',
   refreshTokenExpiresIn: process.env['JWT_REFRESH_EXPIRES_IN'] ?? '7d',
+  cookieExpiresTime:
+    Number(process.env['JWT_COOKIE_EXPIRES_TIME']) ?? 7 * 24 * 60 * 60 * 1000, // 7 days
 
   clientCorsOrigins: {
     test: process.env['DEV_ORIGIN'] ?? '*',

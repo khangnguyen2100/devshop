@@ -23,10 +23,15 @@ const authentication = asyncHandler(
     if (!keyStored)
       throw new BadRequestError(AUTHENTICATION_MESSAGES.NOT_LOGGED_IN);
 
-    // get access token
-    const accessToken = req.headers[HEADER.AUTHORIZATION] as string;
-    if (!accessToken)
+    const authHeader = req.headers[HEADER.AUTHORIZATION] as string;
+    console.log('authHeader:', authHeader);
+    if (!authHeader?.startsWith('Bearer '))
+      throw new BadRequestError('Invalid token method');
+    const accessToken = authHeader.split(' ')[1];
+
+    if (!accessToken) {
       throw new UnauthorizedError(AUTHENTICATION_MESSAGES.TOKEN_NOT_FOUND);
+    }
 
     // verify token
     const decodeData = await verifyTokens(accessToken, keyStored.publicKey);
