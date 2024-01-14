@@ -61,7 +61,7 @@ const clothingSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    collection: 'clothes',
+    collection: 'Clothes',
   },
 );
 const electronicSchema = new mongoose.Schema(
@@ -75,7 +75,7 @@ const electronicSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    collection: 'electronics',
+    collection: 'Electronics',
   },
 );
 export const clothingModel = mongoose.model('clothing', clothingSchema);
