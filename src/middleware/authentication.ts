@@ -24,7 +24,6 @@ const authentication = asyncHandler(
       throw new BadRequestError(AUTHENTICATION_MESSAGES.NOT_LOGGED_IN);
 
     const authHeader = req.headers[HEADER.AUTHORIZATION] as string;
-    console.log('authHeader:', authHeader);
     if (!authHeader?.startsWith('Bearer '))
       throw new BadRequestError('Invalid token method');
     const accessToken = authHeader.split(' ')[1];

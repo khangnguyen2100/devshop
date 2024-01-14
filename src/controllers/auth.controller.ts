@@ -1,9 +1,9 @@
 import { RequestHandler } from 'express';
 import { AUTH_MESSAGES } from 'src/constants/messages';
-import { KeyToken } from 'src/constants/types/KeyToken';
 import { Created, SuccessResponse } from 'src/helpers/core/success.response';
 import AuthService from 'src/services/auth.service';
 import { clearJWTCookies, getJWTCookies } from 'src/utils/cookieJWT';
+import getKeyStored from 'src/utils/getKeyStored';
 
 class AuthController {
   static signUp: RequestHandler = async (req, res) => {
@@ -21,7 +21,7 @@ class AuthController {
   };
 
   static logout: RequestHandler = async (req, res) => {
-    const keyStored = (req as any).keyStored as KeyToken;
+    const keyStored = getKeyStored(req);
     // clear cookies
     clearJWTCookies(res);
     return new SuccessResponse({
