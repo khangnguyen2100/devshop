@@ -70,7 +70,7 @@ const electronicSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    modal: String,
+    model: String,
     color: String,
   },
   {
@@ -78,9 +78,26 @@ const electronicSchema = new mongoose.Schema(
     collection: 'Electronics',
   },
 );
-const productModel = mongoose.model(DOCUMENT_NAMES.PRODUCT, productSchema);
-const electronicModel = mongoose.model('Electronic', electronicSchema);
-const clothingModel = mongoose.model('Clothing', clothingSchema);
+const furnitureSchema = new mongoose.Schema(
+  {
+    manufacturer: {
+      type: String,
+      required: true,
+    },
+    model: String,
+    material: String,
+  },
+  {
+    timestamps: true,
+    collection: 'Furnitures',
+  },
+);
 
-export { electronicModel, clothingModel };
+const productModel = mongoose.model(DOCUMENT_NAMES.PRODUCT, productSchema);
+
+const clothingModel = mongoose.model('Clothing', clothingSchema);
+const electronicModel = mongoose.model('Electronic', electronicSchema);
+const furnitureModel = mongoose.model('Furniture', furnitureSchema);
+
+export { clothingModel, electronicModel, furnitureModel };
 export default productModel;

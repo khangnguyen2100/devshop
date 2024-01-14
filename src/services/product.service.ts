@@ -1,7 +1,12 @@
+import { Types } from 'mongoose';
 import { COMMON_MESSAGES } from 'src/constants/messages';
 import TProduct, { TProductType } from 'src/constants/types/Product';
 import { BadRequestError } from 'src/helpers/core/error.response';
-import productModel, { clothingModel } from 'src/models/product.model';
+import productModel, {
+  clothingModel,
+  electronicModel,
+  furnitureModel,
+} from 'src/models/product.model';
 
 // define product base class
 class ProductBase {
@@ -36,8 +41,11 @@ class ProductBase {
     this.createdBy = createdBy;
   }
 
-  async createProduct() {
-    return await productModel.create(this);
+  async createProduct(productId: Types.ObjectId) {
+    return await productModel.create({
+      ...this,
+      _id: productId,
+    });
   }
 }
 
@@ -48,20 +56,31 @@ class ClothingBase extends ProductBase {
     if (!newClothing)
       throw new BadRequestError('create Clothing product failed!');
 
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newClothing._id);
     if (!newProduct) throw new BadRequestError('create Product failed!');
 
     return newProduct;
   }
 }
-
 class ElectronicBase extends ProductBase {
   async createProduct() {
-    const newElectronic = await clothingModel.create(this.productAttributes);
+    const newElectronic = await electronicModel.create(this.productAttributes);
     if (!newElectronic)
       throw new BadRequestError('create Electronic product failed!');
 
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newElectronic._id);
+    if (!newProduct) throw new BadRequestError('create Product failed!');
+
+    return newProduct;
+  }
+}
+class FurnitureBase extends ProductBase {
+  async createProduct() {
+    const newFurniture = await furnitureModel.create(this.productAttributes);
+    if (!newFurniture)
+      throw new BadRequestError('create Furniture product failed!');
+
+    const newProduct = await super.createProduct(newFurniture._id);
     if (!newProduct) throw new BadRequestError('create Product failed!');
 
     return newProduct;
@@ -71,21 +90,29 @@ class ElectronicBase extends ProductBase {
 
 // main product class
 class ProductFactory {
+  static productRegistry: any = {};
+
+  static registerProductType = (type: TProductType, classRef: any) => {
+    this.productRegistry[type] = classRef;
+  };
+
   static createProduct = async (type: TProductType, payload: TProduct) => {
-    if (!type || !payload) {
+    const ProductClass = this.productRegistry[type];
+
+    if (!ProductClass) {
+      throw new BadRequestError(`Invalid Product type: ${type}`);
+    }
+    if (!payload) {
       throw new BadRequestError(COMMON_MESSAGES.MISSING_REQUIRED_FIELD);
     }
-    switch (type) {
-      case 'clothing':
-        return new ClothingBase(payload).createProduct();
-        break;
-      case 'electronic':
-        return new ElectronicBase(payload).createProduct();
-        break;
-      default:
-        throw new BadRequestError(`Invalid Product type: ${type}`);
-    }
+
+    return new ProductClass(payload).createProduct();
   };
 }
+
+// register product type
+ProductFactory.registerProductType('clothing', ClothingBase);
+ProductFactory.registerProductType('electronic', ElectronicBase);
+ProductFactory.registerProductType('furniture', FurnitureBase);
 
 export default ProductFactory;
