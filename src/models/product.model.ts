@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import slugify from 'slugify';
 import { COLLECTION_NAMES, DOCUMENT_NAMES } from 'src/constants/enums/common';
 import { TProductType } from 'src/constants/types/Product';
 
@@ -26,9 +27,8 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    productDescription: {
-      type: String,
-    },
+    productDescription: { type: String },
+    productSlug: { type: String },
     productType: {
       type: String,
       required: true,
@@ -37,6 +37,29 @@ const productSchema = new mongoose.Schema(
     productAttributes: {
       type: Schema.Types.Mixed,
       required: true,
+    },
+    productRatingAverage: {
+      type: Number,
+      default: 4.5,
+      min: [0, 'Rating must be at least 0'],
+      max: [5, 'Rating must can not be more than 5'],
+      set: (value: number) => Math.round(value * 10) / 10,
+    },
+    productVariations: {
+      type: Array,
+      default: [],
+    },
+    isDraft: {
+      type: Boolean,
+      default: true,
+      index: true,
+      select: false,
+    },
+    isPublished: {
+      type: Boolean,
+      default: false,
+      index: true,
+      select: false,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
@@ -49,6 +72,19 @@ const productSchema = new mongoose.Schema(
     collection: COLLECTION_NAMES.PRODUCT,
   },
 );
+// index for search
+productSchema.index({
+  productName: 'text',
+  productDescription: 'text',
+});
+
+// ENCRYPTION
+productSchema.pre('save', async function (next) {
+  if (this.isModified('productName')) {
+    this.productSlug = slugify(this.productName, { lower: true });
+  }
+  next();
+});
 
 const clothingSchema = new mongoose.Schema(
   {

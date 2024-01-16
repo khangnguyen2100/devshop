@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { Types, isValidObjectId } from 'mongoose';
 import { COMMON_MESSAGES } from 'src/constants/messages';
 import TProduct, { TProductType } from 'src/constants/types/Product';
 import { BadRequestError } from 'src/helpers/core/error.response';
@@ -7,6 +7,12 @@ import productModel, {
   electronicModel,
   furnitureModel,
 } from 'src/models/product.model';
+import {
+  publishProductByShop,
+  queryProduct,
+  searchProductsByUser,
+  unPublishProductByShop,
+} from 'src/models/repositories/product.repo';
 
 // define product base class
 class ProductBase {
@@ -107,6 +113,74 @@ class ProductFactory {
     }
 
     return new ProductClass(payload).createProduct();
+  };
+
+  static publishProductByShop = async (productId: string, userId: string) => {
+    if (!isValidObjectId(productId)) {
+      throw new BadRequestError('Product Id is not valid');
+    }
+    const updatedProduct = await publishProductByShop({
+      productId,
+      productShop: userId,
+    });
+    if (!updatedProduct) {
+      throw new BadRequestError('Publish product failed!');
+    }
+  };
+  static unPublishProductByShop = async (productId: string, userId: string) => {
+    if (!isValidObjectId(productId)) {
+      throw new BadRequestError('Product Id is not valid');
+    }
+    const updatedProduct = await unPublishProductByShop({
+      productId,
+      productShop: userId,
+    });
+    if (!updatedProduct) {
+      throw new BadRequestError('Unpublish product failed!');
+    }
+  };
+
+  // QUERY
+  static findAllDraftsProductsByShop = async ({
+    productShop,
+    skip = 0,
+    limit = 50,
+  }: {
+    productShop: string;
+    skip?: number;
+    limit?: number;
+  }) => {
+    const query = {
+      createdBy: productShop,
+      isDraft: true,
+    };
+    return await queryProduct({ query, skip, limit });
+  };
+  static findAllPublishProductsByShop = async ({
+    productShop,
+    skip = 0,
+    limit = 50,
+  }: {
+    productShop: string;
+    skip?: number;
+    limit?: number;
+  }) => {
+    const query = {
+      createdBy: productShop,
+      isPublished: true,
+    };
+    return await queryProduct({ query, skip, limit });
+  };
+  static searchProducts = async ({
+    keyword,
+    skip = 0,
+    limit = 50,
+  }: {
+    keyword: string;
+    skip?: number;
+    limit?: number;
+  }) => {
+    return await searchProductsByUser({ keyword, skip, limit });
   };
 }
 

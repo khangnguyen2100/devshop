@@ -6,8 +6,13 @@ type TProduct = {
   productPrice: number;
   productQuantity: number;
   productDescription: string;
+  productSlug: string;
   productType: TProductType;
   productAttributes: object;
+  productRatingAverage: number;
+  productVariations: unknown[];
+  isDraft: boolean;
+  isPublished: boolean;
 
   createdBy: string;
   createdAt: Date;
