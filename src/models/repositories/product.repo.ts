@@ -1,40 +1,63 @@
-import { Types } from 'mongoose';
+import { SortOrder, Types } from 'mongoose';
 import { BadRequestError } from 'src/helpers/core/error.response';
+import { getSelectData, getUnSelectData } from 'src/utils/common';
 
 import productModel from '../product.model';
 
 const queryProduct = async ({
   query,
-  skip,
-  limit,
+  page = 1,
+  limit = 50,
+  sort = 'asc',
+  select = [],
 }: {
   query: object;
-  skip: number;
-  limit: number;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  select?: string[];
 }) => {
+  const skip = (page - 1) * limit;
+  const sortBy = {
+    updatedAt: sort as SortOrder,
+  };
+
   return await productModel
     .find(query)
     .populate('createdBy', 'name email _id')
-    .sort({ updatedAt: -1 })
+    .sort(sortBy)
     .skip(skip)
     .limit(limit)
+    .select(getSelectData(select))
     .lean()
     .exec();
 };
 
 const searchProductsByUser = async ({
   keyword,
-  skip,
-  limit,
+  page = 1,
+  limit = 50,
+  sort = 'asc',
+  select = [],
 }: {
   keyword: string;
-  skip: number;
-  limit: number;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  select?: string[];
 }) => {
+  const skip = (page - 1) * limit;
+  const sortBy = {
+    updatedAt: sort as SortOrder,
+    score: { $meta: 'textScore' },
+  };
   const results = await productModel
     .find(
       {
-        $text: { $search: keyword },
+        $text: {
+          $search: keyword,
+          $caseSensitive: false,
+        },
         isPublished: true,
       },
       {
@@ -42,9 +65,10 @@ const searchProductsByUser = async ({
       },
     )
     .populate('createdBy', 'name email _id')
-    .sort({ updatedAt: -1, score: { $meta: 'textScore' } })
+    .sort(sortBy)
     .skip(skip)
     .limit(limit)
+    .select(getSelectData(select))
     .lean()
     .exec();
   return results;
@@ -96,7 +120,25 @@ const unPublishProductByShop = async ({
   return Boolean(modifiedCount);
 };
 
+const findProductById = async (
+  { productId }: { productId: string },
+  { unSelect = [] }: { unSelect?: string[] },
+) => {
+  const foundProduct = await productModel
+    .findOne({
+      _id: new Types.ObjectId(productId),
+    })
+    .select(getUnSelectData(unSelect));
+
+  if (!foundProduct) {
+    throw new BadRequestError('Product is not find');
+  }
+
+  return foundProduct;
+};
+
 export {
+  findProductById,
   publishProductByShop,
   queryProduct,
   searchProductsByUser,

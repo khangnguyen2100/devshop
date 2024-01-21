@@ -6,6 +6,8 @@ import { asyncHandler } from 'src/middleware/errorHandler';
 const router = express.Router();
 
 router.get('/search', asyncHandler(ProductController.searchProductByUser));
+router.get('/getAll', asyncHandler(ProductController.getAllProducts));
+router.get('/:productId', asyncHandler(ProductController.getProductById));
 
 router.use(authentication);
 

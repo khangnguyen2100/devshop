@@ -13,10 +13,10 @@ class Database {
 
   connect() {
     if (nodeEnv === 'development') {
-      mongoose.set('debug', true);
-      mongoose.set('debug', {
-        color: true,
-      });
+      // mongoose.set('debug', true);
+      // mongoose.set('debug', {
+      //   color: true,
+      // });
     }
     mongoose
       .connect(mongoUri)

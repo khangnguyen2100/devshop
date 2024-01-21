@@ -24,39 +24,42 @@ class ProductController {
 
   /**
    * @description Get all draft products by shop
-   * @param {Number} skip - default 0
+   * @param {Number} page - default 1
    * @param {Number} limit - default 50
+   * @param {Number} sort - default asc
    */
 
   static getAllDraftByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
-    const { skip, limit } = req.query;
+    const { page, limit } = req.query;
     new OK({
       message: 'Get all draft products successfully!',
-      metadata: await ProductService.findAllDraftsProductsByShop({
-        productShop: keyStored.user,
-        skip: skip ? Number(skip) : undefined,
-        limit: limit ? Number(limit) : undefined,
-      }),
+      metadata: await ProductService.findAllDraftsProductsByShop(
+        {
+          productShop: keyStored.user,
+        },
+        {
+          page: Number(page) || undefined,
+          limit: Number(limit) || undefined,
+        },
+      ),
     }).send(res);
   };
 
-  /**
-   * @description Get all draft products by shop
-   * @param {Number} skip - default 0
-   * @param {Number} limit - default 50
-   */
-
   static getAllPublishByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
-    const { skip, limit } = req.query;
+    const { page, limit } = req.query;
     new OK({
       message: 'Get all publish products successfully!',
-      metadata: await ProductService.findAllPublishProductsByShop({
-        productShop: keyStored.user,
-        skip: skip ? Number(skip) : undefined,
-        limit: limit ? Number(limit) : undefined,
-      }),
+      metadata: await ProductService.findAllPublishProductsByShop(
+        {
+          productShop: keyStored.user,
+        },
+        {
+          page: Number(page) || undefined,
+          limit: Number(limit) || undefined,
+        },
+      ),
     }).send(res);
   };
   /**
@@ -69,7 +72,10 @@ class ProductController {
     const { productId } = req.params;
     new OK({
       message: 'Publish product successfully!',
-      metadata: await ProductService.publishProductByShop(productId, keyStored.user),
+      metadata: await ProductService.publishProductByShop(
+        productId,
+        keyStored.user,
+      ),
     }).send(res);
   };
   static unPublishProduct: RequestHandler = async (req, res) => {
@@ -84,23 +90,68 @@ class ProductController {
     }).send(res);
   };
 
-    /**
+  /**
    * @description Search product by name, description
    * @param {String} keyword - default ""
-   * @param {Number} skip - default 0
+   * @param {Number} page - default 1
    * @param {Number} limit - default 50
    */
 
   static searchProductByUser: RequestHandler = async (req, res) => {
-    const { keyword, skip, limit } = req.query;
+    const { keyword, page, limit } = req.query;
 
     new OK({
       message: 'Search product successfully!',
-      metadata: await ProductService.searchProducts({
-        keyword: keyword?.toString() || '',
-        skip: skip ? Number(skip) : undefined,
-        limit: limit ? Number(limit) : undefined,
+      metadata: await ProductService.searchProductsByUser(
+        {
+          keyword: keyword?.toString() || '',
+        },
+        {
+          page: Number(page) || undefined,
+          limit: Number(limit) || undefined,
+        },
+      ),
+    }).send(res);
+  };
+
+  static getAllProducts: RequestHandler = async (req, res) => {
+    const { page, limit, sort, select } = req.query;
+    const defaultSelect = [
+      'productName',
+      'productDescription',
+      'productPrice',
+      'productQuantity',
+      'isPublished',
+    ];
+
+    new OK({
+      message: 'Get all products successfully!',
+      metadata: await ProductService.findAllProductsByUser({
+        page: Number(page) || undefined || undefined,
+        limit: Number(limit) || undefined || undefined,
+        sort: sort?.toString() === 'desc' ? 'desc' : 'asc',
+        select:
+          Number(select?.length) > 0 ? (select as string[]) : defaultSelect,
       }),
+    }).send(res);
+  };
+
+  /**
+   * @description Get product by id
+   * @param {ObjectId} productId
+   */
+
+  static getProductById: RequestHandler = async (req, res) => {
+    const { productId } = req.params;
+    const { unSelect } = req.query;
+    new OK({
+      message: 'Get product',
+      metadata: await ProductService.findProductById(
+        { productId },
+        {
+          unSelect: Number(unSelect?.length) > 0 ? (unSelect as string[]) : [],
+        },
+      ),
     }).send(res);
   };
 }

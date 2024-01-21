@@ -1,6 +1,7 @@
 import { Types, isValidObjectId } from 'mongoose';
 import { COMMON_MESSAGES } from 'src/constants/messages';
 import TProduct, { TProductType } from 'src/constants/types/Product';
+import { TPaginationQuery } from 'src/constants/types/common';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import productModel, {
   clothingModel,
@@ -8,6 +9,7 @@ import productModel, {
   furnitureModel,
 } from 'src/models/product.model';
 import {
+  findProductById,
   publishProductByShop,
   queryProduct,
   searchProductsByUser,
@@ -141,46 +143,60 @@ class ProductFactory {
   };
 
   // QUERY
-  static findAllDraftsProductsByShop = async ({
-    productShop,
-    skip = 0,
-    limit = 50,
-  }: {
-    productShop: string;
-    skip?: number;
-    limit?: number;
-  }) => {
+  static findAllProductsByUser = async (pagination: TPaginationQuery) => {
+    const query = {
+      isPublished: true,
+    };
+    return await queryProduct({ query, ...pagination });
+  };
+  static findAllDraftsProductsByShop = async (
+    {
+      productShop,
+    }: {
+      productShop: string;
+    },
+    pagination: TPaginationQuery,
+  ) => {
     const query = {
       createdBy: productShop,
       isDraft: true,
     };
-    return await queryProduct({ query, skip, limit });
+    return await queryProduct({ query, ...pagination });
   };
-  static findAllPublishProductsByShop = async ({
-    productShop,
-    skip = 0,
-    limit = 50,
-  }: {
-    productShop: string;
-    skip?: number;
-    limit?: number;
-  }) => {
+  static findAllPublishProductsByShop = async (
+    {
+      productShop,
+    }: {
+      productShop: string;
+    },
+    pagination: TPaginationQuery,
+  ) => {
     const query = {
       createdBy: productShop,
       isPublished: true,
     };
-    return await queryProduct({ query, skip, limit });
+    return await queryProduct({ query, ...pagination });
   };
-  static searchProducts = async ({
-    keyword,
-    skip = 0,
-    limit = 50,
-  }: {
-    keyword: string;
-    skip?: number;
-    limit?: number;
-  }) => {
-    return await searchProductsByUser({ keyword, skip, limit });
+  static searchProductsByUser = async (
+    { keyword }: { keyword: string },
+    pagination: TPaginationQuery,
+  ) => {
+    return await searchProductsByUser({ keyword, ...pagination });
+  };
+  static findProductById = async (
+    { productId }: { productId: string },
+    { unSelect = [] }: { unSelect?: string[] },
+  ) => {
+    if (!isValidObjectId(productId)) {
+      throw new BadRequestError('Product Id is not valid');
+    }
+    const result = await findProductById(
+      {
+        productId,
+      },
+      { unSelect },
+    );
+    return result;
   };
 }
 
