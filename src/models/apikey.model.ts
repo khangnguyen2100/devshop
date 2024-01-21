@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { COLLECTION_NAMES, DOCUMENT_NAMES } from 'src/constants/enums/common';
 
-const keyTokenSchema = new mongoose.Schema(
+const apiKeySchema = new mongoose.Schema(
   {
     key: {
       type: String,
@@ -24,4 +24,4 @@ const keyTokenSchema = new mongoose.Schema(
   },
 );
 
-export default mongoose.model(DOCUMENT_NAMES.APIKEY, keyTokenSchema);
+export default mongoose.model(DOCUMENT_NAMES.APIKEY, apiKeySchema);

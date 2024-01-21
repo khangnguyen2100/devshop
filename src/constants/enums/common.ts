@@ -10,6 +10,7 @@ export const DOCUMENT_NAMES = {
   KEY: 'KeyToken',
   ORDER: 'Order',
   APIKEY: 'ApiKey',
+  INVENTORY: 'Inventory',
 };
 export const COLLECTION_NAMES = {
   SHOP: 'Shops',
@@ -17,4 +18,5 @@ export const COLLECTION_NAMES = {
   KEY: 'KeyTokens',
   ORDER: 'Orders',
   APIKEY: 'ApiKeys',
+  INVENTORY: 'Inventories',
 };

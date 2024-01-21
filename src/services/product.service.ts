@@ -8,6 +8,7 @@ import productModel, {
   electronicModel,
   furnitureModel,
 } from 'src/models/product.model';
+import { insertInventory } from 'src/models/repositories/inventory.repo';
 import {
   findProductById,
   publishProductByShop,
@@ -51,10 +52,18 @@ class ProductBase {
   }
 
   async createProduct(productId: Types.ObjectId) {
-    return await productModel.create({
+    const newProduct = await productModel.create({
       ...this,
       _id: productId,
     });
+    if (newProduct) {
+      await insertInventory({
+        productId: newProduct._id,
+        quantity: this.productQuantity,
+        shopId: this.createdBy,
+      });
+    }
+    return newProduct;
   }
 
   async updateProduct(productId: string, payload: any) {
