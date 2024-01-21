@@ -14,6 +14,7 @@ import {
   queryProduct,
   searchProductsByUser,
   unPublishProductByShop,
+  updateProductById,
 } from 'src/models/repositories/product.repo';
 
 // define product base class
@@ -55,6 +56,14 @@ class ProductBase {
       _id: productId,
     });
   }
+
+  async updateProduct(productId: string, payload: any) {
+    return await updateProductById({
+      productId: productId,
+      model: productModel,
+      payload,
+    });
+  }
 }
 
 // define sub-class for different product type
@@ -69,6 +78,18 @@ class ClothingBase extends ProductBase {
 
     return newProduct;
   }
+
+  async updateProduct(productId: string) {
+    if (this.productAttributes) {
+      await updateProductById({
+        productId: productId,
+        model: clothingModel,
+        payload: this.productAttributes,
+      });
+    }
+    const updatedProduct = await super.updateProduct(productId, this);
+    return updatedProduct;
+  }
 }
 class ElectronicBase extends ProductBase {
   async createProduct() {
@@ -81,6 +102,18 @@ class ElectronicBase extends ProductBase {
 
     return newProduct;
   }
+
+  async updateProduct(productId: string) {
+    if (this.productAttributes) {
+      await updateProductById({
+        productId: productId,
+        model: electronicModel,
+        payload: this.productAttributes,
+      });
+    }
+    const updatedProduct = await super.updateProduct(productId, this);
+    return updatedProduct;
+  }
 }
 class FurnitureBase extends ProductBase {
   async createProduct() {
@@ -92,6 +125,18 @@ class FurnitureBase extends ProductBase {
     if (!newProduct) throw new BadRequestError('create Product failed!');
 
     return newProduct;
+  }
+
+  async updateProduct(productId: string) {
+    if (this.productAttributes) {
+      await updateProductById({
+        productId: productId,
+        model: furnitureModel,
+        payload: this.productAttributes,
+      });
+    }
+    const updatedProduct = await super.updateProduct(productId, this);
+    return updatedProduct;
   }
 }
 // end define sub-class
@@ -115,6 +160,18 @@ class ProductFactory {
     }
 
     return new ProductClass(payload).createProduct();
+  };
+  static updateProduct = async (type: TProductType, payload: TProduct) => {
+    const ProductClass = this.productRegistry[type];
+
+    if (!ProductClass) {
+      throw new BadRequestError(`Invalid Product type: ${type}`);
+    }
+    if (!payload._id) {
+      throw new BadRequestError('Product Id is required');
+    }
+
+    return new ProductClass(payload).updateProduct(payload._id);
   };
 
   static publishProductByShop = async (productId: string, userId: string) => {

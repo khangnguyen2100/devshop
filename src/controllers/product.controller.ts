@@ -20,6 +20,21 @@ class ProductController {
     }).send(res);
   };
 
+  static updateProduct: RequestHandler = async (req, res) => {
+    const keyStored = getKeyStored(req);
+    const product: TProduct = {
+      ...req.body,
+      createdBy: keyStored.user,
+    };
+    new SuccessResponse({
+      message: 'Update Product successfully!',
+      metadata: await ProductService.updateProduct(
+        product.productType,
+        product,
+      ),
+    }).send(res);
+  };
+
   // QUERY
 
   /**

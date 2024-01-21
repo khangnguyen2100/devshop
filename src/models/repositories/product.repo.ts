@@ -1,4 +1,4 @@
-import { SortOrder, Types } from 'mongoose';
+import { Model, SortOrder, Types } from 'mongoose';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import { getSelectData, getUnSelectData } from 'src/utils/common';
 
@@ -137,10 +137,28 @@ const findProductById = async (
   return foundProduct;
 };
 
+const updateProductById = async ({
+  productId,
+  model,
+  isNew = true,
+  payload,
+}: {
+  productId: string;
+  model: Model<any>;
+  payload: any;
+  isNew?: boolean;
+}) => {
+  const updatedProduct = await model.findByIdAndUpdate(productId, payload, {
+    new: isNew,
+  });
+  return updatedProduct;
+};
+
 export {
   findProductById,
   publishProductByShop,
   queryProduct,
   searchProductsByUser,
   unPublishProductByShop,
+  updateProductById,
 };

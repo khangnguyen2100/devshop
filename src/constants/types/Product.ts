@@ -1,6 +1,7 @@
 export type TProductType = 'clothing' | 'electronic' | 'furniture';
 
 type TProduct = {
+  _id: string;
   productName: string;
   productThumb: string;
   productPrice: number;
