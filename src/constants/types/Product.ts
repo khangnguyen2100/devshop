@@ -1,13 +1,15 @@
+import { Types } from 'mongoose';
+
 export type TProductType = 'clothing' | 'electronic' | 'furniture';
 
 type TProduct = {
-  _id: string;
+  _id: string | Types.ObjectId;
   productName: string;
   productThumb: string;
   productPrice: number;
   productQuantity: number;
-  productDescription: string;
-  productSlug: string;
+  productDescription?: string | null;
+  productSlug?: string |  null;
   productType: TProductType;
   productAttributes: object;
   productRatingAverage: number;

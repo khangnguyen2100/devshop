@@ -16,4 +16,3 @@ const insertInventory = async (inventory: InsertInventoryProps) => {
 };
 
 export { insertInventory };
-

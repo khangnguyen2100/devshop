@@ -11,6 +11,7 @@ export const DOCUMENT_NAMES = {
   ORDER: 'Order',
   APIKEY: 'ApiKey',
   INVENTORY: 'Inventory',
+  DISCOUNT: 'Discount',
 };
 export const COLLECTION_NAMES = {
   SHOP: 'Shops',
@@ -19,4 +20,5 @@ export const COLLECTION_NAMES = {
   ORDER: 'Orders',
   APIKEY: 'ApiKeys',
   INVENTORY: 'Inventories',
+  DISCOUNT: 'Discounts',
 };

@@ -1,3 +1,5 @@
+import { Types } from 'mongoose';
+
 const getSelectData = (select: string[]) => {
   return Object.fromEntries(select.map(item => [item, 1]));
 };
@@ -15,5 +17,13 @@ const removeUndefinedValues = (obj: object) => {
     }),
   );
 };
+const convertToObjectId = (id: string) => {
+  return new Types.ObjectId(id);
+};
 
-export { getSelectData, getUnSelectData, removeUndefinedValues };
+export {
+  getSelectData,
+  getUnSelectData,
+  removeUndefinedValues,
+  convertToObjectId,
+};

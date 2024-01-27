@@ -1,4 +1,4 @@
-type InventoryT = {
+type TInventory = {
   invenProductId: string;
   invenStock: number;
   invenLocation: string;
@@ -7,4 +7,4 @@ type InventoryT = {
   createdAt: Date;
   updatedAt: Date;
 };
-export default InventoryT;
+export default TInventory;
