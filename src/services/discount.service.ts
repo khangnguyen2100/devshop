@@ -63,6 +63,7 @@ class DiscountService {
         createdBy: convertToObjectId(shopId),
         isPublished: true,
       };
+
       products = await queryProduct({
         query,
         page,

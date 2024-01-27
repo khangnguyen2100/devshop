@@ -9,17 +9,17 @@ type TProduct = {
   productPrice: number;
   productQuantity: number;
   productDescription?: string | null;
-  productSlug?: string |  null;
-  productType: TProductType;
+  productSlug?: string | null;
+  productType: TProductType | string;
   productAttributes: object;
   productRatingAverage: number;
   productVariations: unknown[];
   isDraft: boolean;
   isPublished: boolean;
 
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdBy: string | Types.ObjectId;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 };
 
 export type TClothing = {
