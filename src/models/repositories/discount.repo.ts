@@ -1,9 +1,10 @@
 import { SortOrder, Types } from 'mongoose';
 import TDiscount from 'src/constants/types/Discount';
-
-import discountModel from '../discount.model';
 import { getSelectData } from 'src/utils/common';
 import { TPaginationQuery } from 'src/constants/types/common';
+import { BadRequestError } from 'src/helpers/core/error.response';
+
+import discountModel from '../discount.model';
 
 const queryDiscount = async ({
   query,
@@ -39,11 +40,27 @@ const findDiscountByCode = async (code: string, shopId: Types.ObjectId) => {
     .findOne({
       discountCode: code,
       discountShopId: shopId,
-      discountIsActive: true,
     })
-    .lean();
+    .lean()
+    .exec();
   return findDiscount;
 };
+const findAvailableDiscount = async (code: string, shopId: Types.ObjectId) => {
+  const foundDiscount = await findDiscountByCode(code, shopId);
+  if (!foundDiscount) {
+    throw new BadRequestError('Discount code not found');
+  }
+  if (!foundDiscount.discountIsActive) {
+    throw new BadRequestError('Discount code is expired');
+  }
+  return foundDiscount;
+};
+const disableDiscount = async (discountId: Types.ObjectId) => {
+  await discountModel.findByIdAndUpdate(discountId, {
+    discountIsActive: false,
+  });
+};
+
 const insertDiscount = async (payload: TDiscount) => {
   return await discountModel.create(payload);
 };
@@ -62,4 +79,10 @@ const getAllDiscountByShop = async (
   return discounts;
 };
 
-export { findDiscountByCode, getAllDiscountByShop, insertDiscount };
+export {
+  findDiscountByCode,
+  getAllDiscountByShop,
+  insertDiscount,
+  findAvailableDiscount,
+  disableDiscount,
+};

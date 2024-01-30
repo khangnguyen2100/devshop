@@ -4,7 +4,7 @@ import inventoryModel from '../inventory.model';
 type InsertInventoryProps = {
   productId: Types.ObjectId;
   quantity: number;
-  shopId: string;
+  shopId: Types.ObjectId;
 };
 const insertInventory = async (inventory: InsertInventoryProps) => {
   const { productId, quantity, shopId } = inventory;

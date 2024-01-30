@@ -9,7 +9,11 @@ const discountSchema = new mongoose.Schema(
   {
     // info
     discountName: { type: String, required: true },
-    discountCode: { type: String, required: true },
+    discountCode: {
+      type: String,
+      required: true,
+      readonly: true,
+    },
     discountDescription: { type: String, default: '' },
     discountMaxUses: { type: Number, required: true }, // times this discount can be used
     discountUsesCount: { type: Number, default: 0 }, // times this discount has been used
@@ -36,8 +40,15 @@ const discountSchema = new mongoose.Schema(
     },
 
     // date
-    discountStartDate: { type: Date, required: true },
-    discountEndDate: { type: Date, required: true },
+    discountStartDate: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    discountEndDate: {
+      type: Date,
+      required: true,
+    },
 
     // ref
     discountShopId: {

@@ -17,6 +17,7 @@ import {
   unPublishProductByShop,
   updateProductById,
 } from 'src/models/repositories/product.repo';
+import { convertToObjectId } from 'src/utils/common';
 
 // define product base class
 class ProductBase {
@@ -24,10 +25,10 @@ class ProductBase {
   productThumb: string;
   productPrice: number;
   productQuantity: number;
-  productDescription: string;
-  productType: TProductType;
+  productDescription: string | null | undefined;
+  productType: TProductType | string;
   productAttributes: object;
-  createdBy: string;
+  createdBy: string | Types.ObjectId;
 
   constructor(props: TProduct) {
     const {
@@ -60,7 +61,7 @@ class ProductBase {
       await insertInventory({
         productId: newProduct._id,
         quantity: this.productQuantity,
-        shopId: this.createdBy,
+        shopId: convertToObjectId(this.createdBy.toString()),
       });
     }
     return newProduct;
@@ -256,12 +257,10 @@ class ProductFactory {
     if (!isValidObjectId(productId)) {
       throw new BadRequestError('Product Id is not valid');
     }
-    const result = await findProductById(
-      {
-        productId,
-      },
-      { unSelect },
-    );
+    const result = await findProductById({
+      productId,
+      unSelect,
+    });
     return result;
   };
 }

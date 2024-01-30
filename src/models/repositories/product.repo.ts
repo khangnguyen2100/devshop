@@ -33,6 +33,14 @@ const queryProduct = async ({
     .exec();
 };
 
+const getAllProducts = async ({ query }: { query: object }) => {
+  return await productModel
+    .find(query)
+    .populate('createdBy', 'name email _id')
+    .lean()
+    .exec();
+};
+
 const searchProductsByUser = async ({
   keyword,
   page = 1,
@@ -120,10 +128,13 @@ const unPublishProductByShop = async ({
   return Boolean(modifiedCount);
 };
 
-const findProductById = async (
-  { productId }: { productId: string },
-  { unSelect = [] }: { unSelect?: string[] },
-) => {
+const findProductById = async ({
+  productId,
+  unSelect = [],
+}: {
+  productId: string;
+  unSelect?: string[];
+}) => {
   const foundProduct = await productModel
     .findOne({
       _id: new Types.ObjectId(productId),
@@ -161,4 +172,5 @@ export {
   searchProductsByUser,
   unPublishProductByShop,
   updateProductById,
+  getAllProducts,
 };

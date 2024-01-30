@@ -15,6 +15,7 @@ const authentication = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     // get user id
     const userId = req.headers[HEADER.CLIENT_ID] as string;
+    console.log('userId:', userId)
     if (!userId)
       throw new UnauthorizedError(AUTHENTICATION_MESSAGES.USERID_NOT_FOUND);
 

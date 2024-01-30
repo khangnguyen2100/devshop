@@ -17,5 +17,4 @@ type TDiscount = {
   discountShopId: string;
   discountProductsId: string[];
 };
-
 export default TDiscount;

@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import TProduct from 'src/constants/types/Product';
+import TProduct, { TProductType } from 'src/constants/types/Product';
 import { OK, SuccessResponse } from 'src/helpers/core/success.response';
 import ProductService from 'src/services/product.service';
 import getKeyStored from 'src/utils/getKeyStored';
@@ -14,7 +14,7 @@ class ProductController {
     new SuccessResponse({
       message: 'Create Product successfully!',
       metadata: await ProductService.createProduct(
-        product.productType,
+        product.productType as TProductType,
         product,
       ),
     }).send(res);
@@ -29,7 +29,7 @@ class ProductController {
     new SuccessResponse({
       message: 'Update Product successfully!',
       metadata: await ProductService.updateProduct(
-        product.productType,
+        product.productType as TProductType,
         product,
       ),
     }).send(res);
@@ -128,7 +128,9 @@ class ProductController {
       ),
     }).send(res);
   };
-
+  /**
+   * @description get all products from every shop
+   */
   static getAllProducts: RequestHandler = async (req, res) => {
     const { page, limit, sort, select } = req.query;
     const defaultSelect = [
