@@ -1,28 +1,36 @@
 import { Types } from 'mongoose';
+
+export type CartProductInput = {
+  productId: Types.ObjectId | string;
+  shopId: Types.ObjectId | string;
+  quantity: number;
+};
 export type CartProduct = {
-  _id: Types.ObjectId | string;
+  productId: Types.ObjectId | string;
+  shopId: Types.ObjectId | string;
+  name: string;
   price: number;
   quantity: number;
 };
+export type TCartState = 'pending' | 'active' | 'completed' | 'failed';
+export type UpdateCartPayload = {
+  cartId: string;
+  productId: string;
+  quantity: string;
+  oldQuantity: string;
+  version: number;
+};
 type TCart = {
-  _id: Types.ObjectId | string;
-  productIds: CartProduct[];
-  quantity: number;
+  cartProducts: CartProduct[];
+  cartCountProducts: number;
+  cartState: TCartState | string;
+  cartUserId: Types.ObjectId | string;
+};
 
-  orderer: Types.ObjectId | string;
-  phoneNumber: string;
-  address: string;
-  note: string;
-  paymentMethod: string;
-  paymentStatus: string;
-  shippingStatus: string;
-  shippingMethod: string;
-  shippingFee: number;
-  discountAmount: number;
-  totalPrice: number;
-  totalAmount: number;
-  status: string;
+type TCartResponse = TCart & {
+  _id: Types.ObjectId | string;
   createdAt: Date;
   updatedAt: Date;
 };
-export default TCart;
+
+export { TCart, TCartResponse };

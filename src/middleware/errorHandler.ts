@@ -6,10 +6,10 @@ import { COMMON_MESSAGES } from 'src/constants/messages';
  */
 const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
   const statusCode = err?.status || 500;
-  console.error('ERR errorHandler::', err);
   return res.status(statusCode).json({
     code: statusCode,
     message: err.message || COMMON_MESSAGES.INTERNAL_SERVER_ERROR,
+    stack: err.stack,
   });
 };
 

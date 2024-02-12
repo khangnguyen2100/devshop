@@ -15,7 +15,6 @@ const authentication = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     // get user id
     const userId = req.headers[HEADER.CLIENT_ID] as string;
-    console.log('userId:', userId)
     if (!userId)
       throw new UnauthorizedError(AUTHENTICATION_MESSAGES.USERID_NOT_FOUND);
 
@@ -40,7 +39,10 @@ const authentication = asyncHandler(
       throw new Error(AUTH_MESSAGES.TOKEN_INVALID);
     }
 
-    (req as any).keyStored = keyStored;
+    (req as any).keyStored = {
+      ...keyStored,
+      user: keyStored.user.toString(),
+    };
     return next();
   },
 );

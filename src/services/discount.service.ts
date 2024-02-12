@@ -182,11 +182,11 @@ class DiscountService {
     // check product is used by discount
     if (discountAppliesTo === discountAppliesToType.SPECIFIC) {
       const productNotApply = cartProducts.find(item => {
-        return !discountProductsId.includes(item._id.toString());
+        return !discountProductsId.includes(item.productId);
       });
       if (productNotApply) {
         const product = await findProductById({
-          productId: productNotApply._id as string,
+          productId: productNotApply.productId as string,
         });
         throw new BadRequestError(
           `Discount is not available for product: ${product.productName}`,

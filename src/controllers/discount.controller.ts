@@ -37,7 +37,6 @@ class DiscountController {
       ...req.body,
       discountShopId: keyStored.user,
     };
-    console.log('newDiscount:', newDiscount);
 
     new SuccessResponse({
       message: 'Create Discount successfully!',
