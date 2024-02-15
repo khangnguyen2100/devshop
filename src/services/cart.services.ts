@@ -57,7 +57,6 @@ class CartService {
   }
 
   static async updateProductAmount(payload: UpdateCartPayload) {
-    console.log('payload:', payload);
     const { cartId, productId, quantity, oldQuantity, version } = payload;
 
     if (parseInt(quantity) <= 0) {
@@ -71,7 +70,6 @@ class CartService {
     }
 
     const updatedProducts = foundCart.cartProducts.map(item => {
-      console.log('item:', item);
       if (item.productId === productId) {
         if (item.quantity !== oldQuantity) {
           throw new BadRequestError(

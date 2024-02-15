@@ -7,12 +7,16 @@ const findCartByUserId = async (userId: string) => {
   const foundCart = await cartModel
     .findOne({
       cartUserId: convertToObjectId(userId),
+      cartState: 'active',
     })
     .exec();
   return foundCart;
 };
 const findByCartId = async (id: string) => {
-  const foundCart = await cartModel.findById(id);
+  const foundCart = await cartModel.findOne({
+    _id: convertToObjectId(id),
+    cartState: 'active',
+  });
   return foundCart;
 };
 
