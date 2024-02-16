@@ -1,9 +1,5 @@
 import { RequestHandler } from 'express';
-import {
-  CartProduct,
-  CartProductInput,
-  UpdateCartPayload,
-} from 'src/constants/types/Cart';
+import { CartProductInput, UpdateCartPayload } from 'src/constants/types/Cart';
 import { OK } from 'src/helpers/core/success.response';
 import CartService from 'src/services/cart.services';
 import getKeyStored from 'src/utils/getKeyStored';

@@ -130,14 +130,18 @@ const unPublishProductByShop = async ({
 
 const findProductById = async ({
   productId,
+  shopId,
   unSelect = [],
 }: {
   productId: string;
+  shopId: string;
   unSelect?: string[];
 }) => {
   const foundProduct = await productModel
     .findOne({
       _id: new Types.ObjectId(productId),
+      isPublished: true,
+      createdBy: new Types.ObjectId(shopId),
     })
     .select(getUnSelectData(unSelect));
 

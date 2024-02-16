@@ -30,6 +30,7 @@ class CartService {
     const foundCart = await findCartByUserId(userId);
     const productData = await findProductById({
       productId: productInput.productId as string,
+      shopId: productInput.shopId as string,
     });
     if (!productData) {
       throw new BadRequestError('Product not found!');

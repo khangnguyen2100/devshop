@@ -250,16 +250,22 @@ class ProductFactory {
   ) => {
     return await searchProductsByUser({ keyword, ...pagination });
   };
-  static findProductById = async (
-    { productId }: { productId: string },
-    { unSelect = [] }: { unSelect?: string[] },
-  ) => {
+  static findProductById = async ({
+    productId,
+    shopId,
+    unSelect = [],
+  }: {
+    productId: string;
+    shopId: string;
+    unSelect?: string[];
+  }) => {
     if (!isValidObjectId(productId)) {
       throw new BadRequestError('Product Id is not valid');
     }
     const result = await findProductById({
       productId,
       unSelect,
+      shopId,
     });
     return result;
   };

@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import { CartProductInput } from 'src/constants/types/Cart';
 import TDiscount from 'src/constants/types/Discount';
 import { OK, SuccessResponse } from 'src/helpers/core/success.response';
 import DiscountService from 'src/services/discount.service';
@@ -53,7 +54,7 @@ class DiscountController {
         shopId: shopId as string,
         discountCode: discountCode as string,
         userId: keyStored.user,
-        cartProducts: cartProducts as any[],
+        cartProducts: cartProducts as CartProductInput[],
       }),
     }).send(res);
   };

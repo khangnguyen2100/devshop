@@ -2,12 +2,13 @@ import {
   discountAppliesToType,
   discountType,
 } from 'src/constants/enums/product';
-import { CartProduct } from 'src/constants/types/Cart';
+import { CartProductInput } from 'src/constants/types/Cart';
 import TDiscount from 'src/constants/types/Discount';
 import TProduct from 'src/constants/types/Product';
 import { TPaginationQuery } from 'src/constants/types/common';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import discountModel from 'src/models/discount.model';
+import { getCartProductsData } from 'src/models/repositories/cart.repo';
 import {
   disableDiscount,
   findAvailableDiscount,
@@ -140,7 +141,7 @@ class DiscountService {
     discountCode: string;
     shopId: string;
     userId: string;
-    cartProducts: CartProduct[];
+    cartProducts: CartProductInput[];
   }) {
     const { discountCode, shopId, cartProducts, userId } = props;
 
@@ -173,6 +174,10 @@ class DiscountService {
       throw new BadRequestError('Discount is not available now');
     }
 
+    if (cartProducts.some(item => item.shopId !== shopId)) {
+      throw new BadRequestError('Product not belong to this shop');
+    }
+
     // check discount is used
     if (discountUsesCount >= discountMaxUses) {
       disableDiscount(foundDiscount._id);
@@ -187,6 +192,7 @@ class DiscountService {
       if (productNotApply) {
         const product = await findProductById({
           productId: productNotApply.productId as string,
+          shopId: productNotApply.shopId as string,
         });
         throw new BadRequestError(
           `Discount is not available for product: ${product.productName}`,
@@ -201,7 +207,8 @@ class DiscountService {
     }
 
     // check cart value is enough
-    const totalCartValue = cartProducts.reduce((acc, curr) => {
+    const cartProductsData = await getCartProductsData(cartProducts);
+    const totalCartValue = cartProductsData.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
     }, 0);
     if (totalCartValue < discountMinOrderValue) {

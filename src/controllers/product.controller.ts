@@ -160,15 +160,16 @@ class ProductController {
 
   static getProductById: RequestHandler = async (req, res) => {
     const { productId } = req.params;
+    const keyStored = getKeyStored(req);
+
     const { unSelect } = req.query;
     new OK({
       message: 'Get product',
-      metadata: await ProductService.findProductById(
-        { productId },
-        {
-          unSelect: Number(unSelect?.length) > 0 ? (unSelect as string[]) : [],
-        },
-      ),
+      metadata: await ProductService.findProductById({
+        productId,
+        shopId: keyStored.user,
+        unSelect: Number(unSelect?.length) > 0 ? (unSelect as string[]) : [],
+      }),
     }).send(res);
   };
 }

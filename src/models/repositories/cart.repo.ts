@@ -1,7 +1,9 @@
-import { CartProduct } from 'src/constants/types/Cart';
+import { CartProduct, CartProductInput } from 'src/constants/types/Cart';
 import { convertToObjectId } from 'src/utils/common';
 
 import cartModel from '../cart.model';
+
+import { findProductById } from './product.repo';
 
 const findCartByUserId = async (userId: string) => {
   const foundCart = await cartModel
@@ -71,10 +73,30 @@ const addNewProductToCart = async (payload: {
   };
   return await cartModel.findOneAndUpdate(query, updateOrInsert, options);
 };
+const getCartProductsData = async (
+  products: CartProductInput[],
+): Promise<CartProduct[]> => {
+  const result = await Promise.all(
+    products.map(async (item: CartProductInput) => {
+      const product = await findProductById({
+        productId: item.productId.toString(),
+        shopId: item.shopId.toString(),
+      });
+      if (!product) return null;
+      return {
+        ...item,
+        price: product.productPrice,
+        name: product.productName,
+      } as CartProduct;
+    }),
+  );
+  return result.filter(item => item) as CartProduct[];
+};
 
 export {
   addNewProductToCart,
   findByCartId,
   findCartByUserId,
   updateProductQuantity,
+  getCartProductsData,
 };
