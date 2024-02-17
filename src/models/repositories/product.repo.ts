@@ -1,6 +1,8 @@
 import { Model, SortOrder, Types } from 'mongoose';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import { getSelectData, getUnSelectData } from 'src/utils/common';
+import { CartProductInput } from 'src/constants/types/Cart';
+import TProduct from 'src/constants/types/Product';
 
 import productModel from '../product.model';
 
@@ -143,7 +145,8 @@ const findProductById = async ({
       isPublished: true,
       createdBy: new Types.ObjectId(shopId),
     })
-    .select(getUnSelectData(unSelect));
+    .select(getUnSelectData(unSelect))
+    .lean();
 
   if (!foundProduct) {
     throw new BadRequestError('Product is not find');
@@ -168,13 +171,29 @@ const updateProductById = async ({
   });
   return updatedProduct;
 };
+const getProductsData = async (
+  products: CartProductInput[],
+): Promise<TProduct[]> => {
+  const result = await Promise.all(
+    products.map(async (item: CartProductInput) => {
+      const product = await findProductById({
+        productId: item.productId.toString(),
+        shopId: item.shopId.toString(),
+      });
+      if (!product) return null;
+      return product as TProduct;
+    }),
+  );
+  return result.filter(item => item) as TProduct[];
+};
 
 export {
   findProductById,
+  getAllProducts,
   publishProductByShop,
   queryProduct,
   searchProductsByUser,
   unPublishProductByShop,
   updateProductById,
-  getAllProducts,
+  getProductsData,
 };

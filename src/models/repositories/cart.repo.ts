@@ -1,5 +1,6 @@
 import { CartProduct, CartProductInput } from 'src/constants/types/Cart';
 import { convertToObjectId } from 'src/utils/common';
+import { BadRequestError } from 'src/helpers/core/error.response';
 
 import cartModel from '../cart.model';
 
@@ -27,6 +28,15 @@ const updateProductQuantity = async (payload: {
   product: CartProduct;
 }) => {
   const { product, userId } = payload;
+  // Fetch the product from the database
+  const dbProduct = await findProductById({
+    productId: product.productId.toString(),
+    shopId: product.shopId.toString(),
+  });
+  // Check if the product quantity is sufficient
+  if (dbProduct.productQuantity < product.quantity) {
+    throw new BadRequestError('Product amount is not enough');
+  }
 
   // change quantity of product in cart
   try {

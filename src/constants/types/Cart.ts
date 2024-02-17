@@ -16,8 +16,8 @@ export type TCartState = 'pending' | 'active' | 'completed' | 'failed';
 export type UpdateCartPayload = {
   cartId: string;
   productId: string;
-  quantity: string;
-  oldQuantity: string;
+  quantity: number;
+  oldQuantity: number;
   version: number;
 };
 type TCart = {

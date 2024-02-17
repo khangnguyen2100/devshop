@@ -3,6 +3,7 @@ import {
   CartProductInput,
   UpdateCartPayload,
 } from 'src/constants/types/Cart';
+import TProduct from 'src/constants/types/Product';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import cartModel from 'src/models/cart.model';
 import {
@@ -11,7 +12,10 @@ import {
   findCartByUserId,
   updateProductQuantity,
 } from 'src/models/repositories/cart.repo';
-import { findProductById } from 'src/models/repositories/product.repo';
+import {
+  findProductById,
+  getProductsData,
+} from 'src/models/repositories/product.repo';
 import { convertToObjectId } from 'src/utils/common';
 
 class CartService {
@@ -60,7 +64,7 @@ class CartService {
   static async updateProductAmount(payload: UpdateCartPayload) {
     const { cartId, productId, quantity, oldQuantity, version } = payload;
 
-    if (parseInt(quantity) <= 0) {
+    if (quantity <= 0) {
       const updatedCart = this.deleteProductsInCart(cartId, [productId]);
       return updatedCart;
     }
@@ -69,24 +73,40 @@ class CartService {
     if (!foundCart) {
       throw new BadRequestError('Cart not found!');
     }
+    const productsData = await getProductsData(foundCart.cartProducts);
+    const updatedProducts = productsData.map(
+      (item: TProduct, index: number) => {
+        if (item._id.toString() === productId) {
+          if (foundCart.cartProducts[index].quantity !== oldQuantity) {
+            throw new BadRequestError(
+              'Cart quantity has been changed, please refresh the page and try again',
+            );
+          }
+          if (item?.productQuantity < quantity) {
+            throw new BadRequestError(
+              `Product ${item.productName} is not enough amount`,
+            );
+          }
 
-    const updatedProducts = foundCart.cartProducts.map(item => {
-      if (item.productId === productId) {
-        if (item.quantity !== oldQuantity) {
-          throw new BadRequestError(
-            'Cart quantity has been changed, please refresh the page and try again',
-          );
+          return {
+            price: item.productPrice,
+            productId: item._id.toString(),
+            shopId: item.createdBy.toString(),
+            name: item.productName,
+            quantity,
+          } as CartProduct;
+        } else {
+          return {
+            price: item.productPrice,
+            productId: item._id.toString(),
+            shopId: item.createdBy.toString(),
+            name: item.productName,
+            quantity: item.productQuantity,
+          } as CartProduct;
         }
-        return {
-          ...item,
-          quantity,
-        };
-      } else {
-        return item;
-      }
-    });
+      },
+    );
     foundCart.cartProducts = updatedProducts;
-
     await foundCart.save();
     return foundCart;
   }
