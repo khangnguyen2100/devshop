@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongoose';
+
 type TPaginationQuery = {
   page?: number;
   limit?: number;
@@ -10,5 +12,10 @@ type TPagination = {
   limit: number;
   total: number;
 };
+type ObjectIdCustom = ObjectId | string;
+type MongoTimestamps = {
+  createdAt: string;
+  updatedAt: string;
+};
 
-export { TPagination, TPaginationQuery };
+export { TPagination, TPaginationQuery, MongoTimestamps, ObjectIdCustom };

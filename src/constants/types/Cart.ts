@@ -1,16 +1,13 @@
-import { Types } from 'mongoose';
+import { ObjectIdCustom } from './common';
 
 export type CartProductInput = {
-  productId: Types.ObjectId | string;
-  shopId: Types.ObjectId | string;
+  productId: ObjectIdCustom;
+  shopId: ObjectIdCustom;
   quantity: number;
 };
-export type CartProduct = {
-  productId: Types.ObjectId | string;
-  shopId: Types.ObjectId | string;
+export type CartProduct = CartProductInput & {
   name: string;
   price: number;
-  quantity: number;
 };
 export type TCartState = 'pending' | 'active' | 'completed' | 'failed';
 export type UpdateCartPayload = {
@@ -23,14 +20,14 @@ export type UpdateCartPayload = {
 type TCart = {
   cartProducts: CartProduct[];
   cartCountProducts: number;
-  cartState: TCartState | string;
-  cartUserId: Types.ObjectId | string;
+  cartState: TCartState;
+  cartUserId: ObjectIdCustom;
 };
 
 type TCartResponse = TCart & {
-  _id: Types.ObjectId | string;
+  _id: ObjectIdCustom;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export { TCart, TCartResponse };
+export { TCartResponse };

@@ -60,7 +60,7 @@ class ProductBase {
     if (newProduct) {
       await insertInventory({
         productId: newProduct._id,
-        quantity: this.productQuantity,
+        stock: this.productQuantity,
         shopId: convertToObjectId(this.createdBy.toString()),
       });
     }

@@ -9,16 +9,8 @@ const cartSchema = new mongoose.Schema(
       enum: ['pending', 'active', 'completed', 'failed'],
       default: 'active',
     },
-    /*
-      [
-        {
-          productId: Types.ObjectId,
-          shopId: Types.ObjectId,
-          name: string,
-          quantity: number,
-          price: number,
-        }
-      ]
+    /**
+     @type CartProduct
     */
     cartProducts: {
       type: Array,
