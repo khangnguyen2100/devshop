@@ -14,12 +14,15 @@
     "prepare": "npx ts-patch install -s"
   },
   "dependencies": {
+    "@types/redis": "^4.0.11",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.10",
     "express": "^4.18.2",
     "helmet": "^6.0.1",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
+    "redis": "^4.6.13",
     "validator": "^13.11.0"
   },
   "devDependencies": {

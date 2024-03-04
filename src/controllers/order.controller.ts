@@ -14,6 +14,23 @@ class OrderController {
       }),
     }).send(res);
   };
+  static orderByUser: RequestHandler = async (req, res) => {
+    const { cartId } = req.params;
+    const keyStored = getKeyStored(req);
+
+    const body = req.body;
+    new OK({
+      message: 'Get data successfully!',
+      metadata: await OrderService.orderByUser({
+        userId: keyStored.user,
+
+        orderData: req.body.orderData,
+        cartId: cartId,
+        paymentMethod: body.paymentMethod,
+        userAddress: body.userAddress,
+      }),
+    }).send(res);
+  };
 }
 
 export default OrderController;

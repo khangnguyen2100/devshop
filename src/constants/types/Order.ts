@@ -1,4 +1,7 @@
-import { CartProductInput } from './Cart';
+import { ObjectId } from 'mongoose';
+
+import { CartProduct, CartProductInput } from './Cart';
+import { MongoTimestamps } from './common';
 
 export type TShopDiscount = {
   shopId: string;
@@ -11,17 +14,53 @@ export type TOrderData = {
   shopDiscounts: TShopDiscount[];
   itemProducts: CartProductInput[];
 };
-type OrderStatus = 'pending' | 'completed' | 'failed';
 
-type TOrder = {
-  cartId: string;
-  userId: string;
-  paymentMethod: string;
-  status: OrderStatus;
-  orderData: TOrderData[];
+type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'canceled'
+  | 'shipped'
+  | 'completed';
+
+type PaymentMethod = 'CASH' | 'ONLINE';
+type ShippingAddress = {
+  provinceCode: string;
+  provinceName: string;
+  districtCode: string;
+  districtName: string;
+  wardCode: string;
+  wardName: string;
+  streetName: string;
+  addressDetail: string;
+};
+type OrderCheckoutPrices = {
   totalPrice: number;
   totalFeeShip: number;
   totalDiscount: number;
   finalPrice: number;
 };
-export default TOrder;
+
+type TOrderBase = {
+  orderUserId: string | ObjectId;
+  orderProducts: CartProduct[];
+  orderCheckoutPrices: OrderCheckoutPrices;
+  orderShippingAddress: ShippingAddress;
+  orderPaymentMethod: PaymentMethod;
+};
+type TOrderInput = TOrderBase & {
+  orderTrackingNumber?: string;
+  orderStatus?: OrderStatus;
+};
+type TOrderResponse = TOrderBase &
+  MongoTimestamps & {
+    orderStatus: OrderStatus;
+    orderTrackingNumber: string;
+  };
+
+export {
+  TOrderInput,
+  TOrderResponse,
+  ShippingAddress,
+  OrderStatus,
+  PaymentMethod,
+};

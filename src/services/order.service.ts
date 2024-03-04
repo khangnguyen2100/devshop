@@ -1,11 +1,27 @@
-import { TOrderData } from 'src/constants/types/Order';
+import {
+  PaymentMethod,
+  ShippingAddress,
+  TOrderData,
+} from 'src/constants/types/Order';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import {
   findCartByUserId,
   getCartProductsData,
 } from 'src/models/repositories/cart.repo';
+import { createOrder } from 'src/models/repositories/order.repo';
+import { CartProduct } from 'src/constants/types/Cart';
 
 import DiscountService from './discount.service';
+import { acquireLock, releaseLock } from './redis.service';
+
+type OrderByUserProps = {
+  userAddress: ShippingAddress;
+  paymentMethod: PaymentMethod;
+  cartId: string;
+  userId: string;
+  orderData: TOrderData[];
+};
+
 const FREE_SHIP_PRICE = 30000; // 30k
 class OrderService {
   static async getCheckoutReview({
@@ -33,7 +49,7 @@ class OrderService {
         totalDiscount: 0,
         finalPrice: 0,
         shopDiscounts: [],
-        itemProducts: [],
+        itemProducts: [] as CartProduct[],
       };
       const { itemProducts, shopDiscounts } = orderData[i];
       const cartProductsData = await getCartProductsData(itemProducts);
@@ -43,7 +59,7 @@ class OrderService {
         return arr + curr.price * curr.quantity;
       }, 0);
       orderReviewItem.totalPrice = totalPrice;
-      orderReviewItem.itemProducts = cartProductsData as never[];
+      orderReviewItem.itemProducts = cartProductsData;
 
       totalOrderReview.totalPrice += totalPrice;
       totalOrderReview.totalFeeShip += FREE_SHIP_PRICE;
@@ -80,10 +96,61 @@ class OrderService {
       orderReviews.push(orderReviewItem);
     }
     return {
-      orderReviews,
-      ...totalOrderReview,
+      orderReviewDetail: orderReviews,
+      prices: totalOrderReview,
     };
   }
+
+  static async orderByUser(props: OrderByUserProps) {
+    const { cartId, orderData, paymentMethod, userAddress, userId } = props;
+    const { orderReviewDetail, prices } = await this.getCheckoutReview({
+      orderData,
+      userId,
+    });
+    // check product is enough quantity before start order
+    const products = orderReviewDetail.flatMap(item => item.itemProducts);
+    const acquireProductKeyLock: (string | null)[] = [];
+
+    for (let i = 0; i < products.length; i++) {
+      const { productId, quantity, shopId } = products[i];
+
+      const keyLock = await acquireLock({
+        cartId,
+        productId: productId.toString(),
+        quantity,
+      });
+      acquireProductKeyLock.push(keyLock ? keyLock : null);
+      if (keyLock) {
+        await releaseLock(keyLock);
+      }
+    }
+    // check if any product is not enough quantity
+    if (acquireProductKeyLock.includes(null)) {
+      throw new BadRequestError('Some products are not enough quantity');
+    }
+
+    // create order
+    const createdOrder = await createOrder({
+      orderUserId: userId,
+      orderShippingAddress: userAddress,
+      orderCheckoutPrices: prices,
+      orderPaymentMethod: paymentMethod,
+      orderProducts: products,
+    });
+
+    return {
+      orderReviewDetail,
+      prices,
+      products,
+      createdOrder,
+    };
+  }
+
+  static async getOrdersByUser() {}
+  static async getOrderByUser() {}
+  static async updateStatusByUser() {}
+  static async cancelOrderByUser() {}
+  static async updateStatusByShop() {}
 }
 
 export default OrderService;

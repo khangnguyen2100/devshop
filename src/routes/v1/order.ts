@@ -11,5 +11,9 @@ router.post(
   '/checkout-review',
   asyncHandler(OrderController.getCheckoutReview),
 );
+router.post(
+  '/order-by-user/:cartId',
+  asyncHandler(OrderController.orderByUser),
+);
 
 export default router;
