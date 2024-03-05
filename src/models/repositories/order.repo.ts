@@ -1,4 +1,4 @@
-import TOrder, { TOrderInput } from 'src/constants/types/Order';
+import { TOrderInput } from 'src/constants/types/Order';
 
 import orderModel from '../order.model';
 
