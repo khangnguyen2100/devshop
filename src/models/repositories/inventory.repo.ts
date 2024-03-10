@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { ClientSession, Types } from 'mongoose';
 import { convertToObjectId } from 'src/utils/common';
 
 import inventoryModel from '../inventory.model';
@@ -18,13 +18,29 @@ const insertInventory = async (inventory: InsertInventoryProps) => {
     invenLocation: location,
   });
 };
+const checkIsEnoughQuantity = async (props: {
+  productId: string;
+  quantity: number;
+}): Promise<boolean> => {
+  const { productId, quantity } = props;
 
+  const query = {
+    invenProductId: convertToObjectId(productId),
+    invenStock: {
+      $gte: quantity,
+    },
+  };
+  const result = await inventoryModel.findOne(query).lean();
+  return Boolean(result?._id);
+};
+// trừ số lượng trong kho kho có người đặt hàng
 const reservationInventory = async (props: {
   productId: string;
   cartId: string;
   quantity: number;
+  session?: ClientSession;
 }) => {
-  const { cartId, productId, quantity } = props;
+  const { cartId, productId, quantity, session } = props;
 
   const query = {
     invenProductId: convertToObjectId(productId),
@@ -47,10 +63,10 @@ const reservationInventory = async (props: {
 
   const result = await inventoryModel.updateOne(query, updateSet, {
     new: true,
-    upsert: true,
+    session: session,
   });
 
   return result;
 };
 
-export { insertInventory, reservationInventory };
+export { insertInventory, reservationInventory, checkIsEnoughQuantity };
