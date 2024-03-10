@@ -1,23 +1,14 @@
-import { promisify } from 'util';
-
-import * as redis from 'redis';
+import { ClientSession } from 'mongoose';
+import redisClient from 'src/configs/redis';
 import { reservationInventory } from 'src/models/repositories/inventory.repo';
 import { delay } from 'src/utils/common';
-
-const redisClient = redis.createClient({
-  url: process.env.REDIS_URI,
-});
-
-const pExpireAsync = promisify(redisClient.pExpire).bind(redisClient);
-const setnxAsync = promisify(redisClient.setNX).bind(redisClient);
-const delAsync = promisify(redisClient.del).bind(redisClient);
-
 const acquireLock = async (props: {
   productId: string;
   cartId: string;
   quantity: number;
+  session?: ClientSession;
 }) => {
-  const { cartId, productId, quantity } = props;
+  const { cartId, productId, quantity, session } = props;
 
   const KEY = `lock_v2024_${productId}`;
   const RETRY_TIME = 10;
@@ -26,17 +17,22 @@ const acquireLock = async (props: {
   // try to lock this key
   for (let i = 0; i < RETRY_TIME; i++) {
     // lock key
-    const result = await setnxAsync(KEY);
+    const result = await redisClient.set(KEY, `cartId::${cartId}`, {
+      PX: EXPIRE_TIME,
+      NX: true,
+    });
     if (result) {
       // bat dau tru hang trong kho
       const isReservation = await reservationInventory({
         cartId,
         productId,
         quantity,
+        session,
       });
+      // tai sai phai cho 3s moi delete key?
+      // await redisClient.pExpire(KEY, EXPIRE_TIME);
       if (isReservation.modifiedCount) {
-        // tai sai phai cho 3s moi delete key?
-        await pExpireAsync(KEY, EXPIRE_TIME);
+        await releaseLock(KEY);
         return KEY;
       } else {
         return null;
@@ -50,8 +46,8 @@ const acquireLock = async (props: {
   return null;
 };
 
-const releaseLock = async (keyLock: string | number) => {
-  return delAsync(keyLock);
+const releaseLock = async (keyLock: string) => {
+  return redisClient.del(keyLock);
 };
 
 export { acquireLock, releaseLock };

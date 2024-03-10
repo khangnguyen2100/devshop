@@ -10,6 +10,8 @@ import {
 } from 'src/models/repositories/cart.repo';
 import { createOrder } from 'src/models/repositories/order.repo';
 import { CartProduct } from 'src/constants/types/Cart';
+import { checkIsEnoughQuantity } from 'src/models/repositories/inventory.repo';
+import mongoose from 'mongoose';
 
 import DiscountService from './discount.service';
 import { acquireLock, releaseLock } from './redis.service';
@@ -100,50 +102,95 @@ class OrderService {
       prices: totalOrderReview,
     };
   }
-
+  static async handleProductsIsEnoughQuantity(products: CartProduct[]) {
+    return await Promise.all(
+      products.map(async item => {
+        const isEnough = await checkIsEnoughQuantity({
+          productId: item.productId.toString(),
+          quantity: item.quantity,
+        });
+        return isEnough;
+      }),
+    ).then(result => {
+      return result.every(item => item === true);
+    });
+  }
   static async orderByUser(props: OrderByUserProps) {
     const { cartId, orderData, paymentMethod, userAddress, userId } = props;
     const { orderReviewDetail, prices } = await this.getCheckoutReview({
       orderData,
       userId,
     });
-    // check product is enough quantity before start order
     const products = orderReviewDetail.flatMap(item => item.itemProducts);
+
+    // check product is enough quantity before start order
+    const isEnoughQuantity =
+      await this.handleProductsIsEnoughQuantity(products);
+
+    if (!isEnoughQuantity) {
+      throw new BadRequestError(
+        'Some products are not enough quantity, please refresh your cart and try again!',
+      );
+    }
+
+    // trừ hàng trong kho, đặt hàng
     const acquireProductKeyLock: (string | null)[] = [];
 
-    for (let i = 0; i < products.length; i++) {
-      const { productId, quantity, shopId } = products[i];
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-      const keyLock = await acquireLock({
-        cartId,
-        productId: productId.toString(),
-        quantity,
-      });
-      acquireProductKeyLock.push(keyLock ? keyLock : null);
-      if (keyLock) {
-        await releaseLock(keyLock);
+    try {
+      for (let i = 0; i < products.length; i++) {
+        const { productId, quantity, shopId } = products[i];
+
+        const keyLock = await acquireLock({
+          cartId,
+          productId: productId.toString(),
+          quantity,
+          session,
+        });
+        console.log('keyLock:', keyLock);
+        acquireProductKeyLock.push(keyLock ? keyLock : null);
+      }
+      // check if any product is not enough quantity
+      if (acquireProductKeyLock.includes(null)) {
+        throw new Error('Some products are not enough quantity');
+      }
+
+      // create order
+      const createdOrder = await createOrder(
+        {
+          orderUserId: userId,
+          orderShippingAddress: userAddress,
+          orderCheckoutPrices: prices,
+          orderPaymentMethod: paymentMethod,
+          orderProducts: products,
+        },
+        session,
+      );
+
+      console.log('commitTransaction:');
+      await session.commitTransaction();
+
+      return {
+        orderReviewDetail,
+        prices,
+        products,
+        createdOrder,
+      };
+    } catch (error: any) {
+      console.log('abortTransaction:');
+      await session.abortTransaction();
+      throw new BadRequestError(error.message);
+    } finally {
+      session.endSession();
+      // release all locks, regardless of whether the transaction was successful
+      for (const keyLock of acquireProductKeyLock) {
+        if (keyLock) {
+          await releaseLock(keyLock);
+        }
       }
     }
-    // check if any product is not enough quantity
-    if (acquireProductKeyLock.includes(null)) {
-      throw new BadRequestError('Some products are not enough quantity');
-    }
-
-    // create order
-    const createdOrder = await createOrder({
-      orderUserId: userId,
-      orderShippingAddress: userAddress,
-      orderCheckoutPrices: prices,
-      orderPaymentMethod: paymentMethod,
-      orderProducts: products,
-    });
-
-    return {
-      orderReviewDetail,
-      prices,
-      products,
-      createdOrder,
-    };
   }
 
   static async getOrdersByUser() {}

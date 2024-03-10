@@ -1,8 +1,9 @@
 import { TOrderInput } from 'src/constants/types/Order';
+import { ClientSession } from 'mongoose';
 
 import orderModel from '../order.model';
 
-const createOrder = async (props: TOrderInput) => {
+const createOrder = async (props: TOrderInput, session: ClientSession) => {
   const {
     orderCheckoutPrices,
     orderPaymentMethod,
@@ -10,13 +11,16 @@ const createOrder = async (props: TOrderInput) => {
     orderShippingAddress,
     orderUserId,
   } = props;
-  const result = await orderModel.create({
-    orderUserId,
-    orderProducts,
-    orderCheckoutPrices,
-    orderShippingAddress,
-    orderPaymentMethod,
-  });
+  const result = await orderModel.create(
+    {
+      orderUserId,
+      orderProducts,
+      orderCheckoutPrices,
+      orderShippingAddress,
+      orderPaymentMethod,
+    },
+    { session },
+  );
   return result;
 };
 export { createOrder };
