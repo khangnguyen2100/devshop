@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "cross-env NODE_ENV=production dotenv -e .env node dist/src/index.js",
-    "dev": "cross-env NODE_ENV=development nodemon",
+    "dev": "docker-compose up",
     "test": "cross-env NODE_ENV=test dotenv -e .env jest",
     "test:watch": "cross-env NODE_ENV=test dotenv -e .env jest --watch",
     "lint": "npx eslint src",

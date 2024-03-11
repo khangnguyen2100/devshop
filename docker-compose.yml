@@ -31,6 +31,18 @@ services:
       - devshop-mongo3:/data/db
     ports:
       - 30003:30003
+  app:
+    build: .
+    container_name: app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - '3100:3100'
+    environment:
+      - PORT=3100
+    volumes:
+      - .:/app
 volumes:
   devshop-mongo1:
   devshop-mongo2:
