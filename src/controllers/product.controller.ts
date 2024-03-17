@@ -93,6 +93,19 @@ class ProductController {
       ),
     }).send(res);
   };
+  static changeInventory: RequestHandler = async (req, res) => {
+    const keyStored = getKeyStored(req);
+    const { productId } = req.params;
+    const { quantity } = req.query;
+    new OK({
+      message: 'Changed product inventory successfully!',
+      metadata: await ProductService.changeInventory({
+        productId,
+        quantity: Number(quantity),
+        userId: keyStored.user,
+      }),
+    }).send(res);
+  };
   static unPublishProduct: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const { productId } = req.params;

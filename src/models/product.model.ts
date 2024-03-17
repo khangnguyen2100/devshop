@@ -25,7 +25,7 @@ const productSchema = new mongoose.Schema(
     },
     productQuantity: {
       type: Number,
-      required: true,
+      default: 0,
     },
     productDescription: { type: String },
     productSlug: { type: String },
@@ -84,6 +84,12 @@ productSchema.pre('save', async function (next) {
     this.productSlug = slugify(this.productName, { lower: true });
   }
   next();
+});
+productSchema.virtual('productInventory', {
+  ref: DOCUMENT_NAMES.INVENTORY,
+  localField: '_id',
+  foreignField: 'invenProductId',
+  justOne: true,
 });
 
 const clothingSchema = new mongoose.Schema(

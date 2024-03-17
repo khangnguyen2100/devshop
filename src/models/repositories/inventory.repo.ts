@@ -33,6 +33,27 @@ const checkIsEnoughQuantity = async (props: {
   const result = await inventoryModel.findOne(query).lean();
   return Boolean(result?._id);
 };
+const updateInventory = async (props: {
+  productId: string;
+  newQuantity: number;
+  userId: string;
+}) => {
+  const { productId, newQuantity, userId } = props;
+
+  const query = {
+    invenProductId: convertToObjectId(productId),
+    invenShopId: convertToObjectId(userId),
+  };
+  const updateSet = {
+    invenStock: newQuantity,
+    invenProductId: convertToObjectId(productId),
+    invenShopId: convertToObjectId(userId),
+  };
+
+  const result = await inventoryModel.updateOne(query, updateSet);
+
+  return result;
+};
 // trừ số lượng trong kho kho có người đặt hàng
 const reservationInventory = async (props: {
   productId: string;
@@ -69,4 +90,9 @@ const reservationInventory = async (props: {
   return result;
 };
 
-export { insertInventory, reservationInventory, checkIsEnoughQuantity };
+export {
+  checkIsEnoughQuantity,
+  insertInventory,
+  reservationInventory,
+  updateInventory,
+};

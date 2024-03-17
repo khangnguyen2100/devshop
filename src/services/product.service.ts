@@ -1,3 +1,4 @@
+import { isNumber } from 'lodash';
 import { Types, isValidObjectId } from 'mongoose';
 import { COMMON_MESSAGES } from 'src/constants/messages';
 import TProduct, { TProductType } from 'src/constants/types/Product';
@@ -8,7 +9,10 @@ import productModel, {
   electronicModel,
   furnitureModel,
 } from 'src/models/product.model';
-import { insertInventory } from 'src/models/repositories/inventory.repo';
+import {
+  insertInventory,
+  updateInventory,
+} from 'src/models/repositories/inventory.repo';
 import {
   findProductById,
   publishProductByShop,
@@ -54,7 +58,14 @@ class ProductBase {
 
   async createProduct(productId: Types.ObjectId) {
     const newProduct = await productModel.create({
-      ...this,
+      productName: this.productName,
+      productThumb: this.productThumb,
+      productPrice: this.productPrice,
+      // productQuantity: this.productQuantity,
+      productDescription: this.productDescription,
+      productType: this.productType,
+      productAttributes: this.productAttributes,
+      createdBy: this.createdBy,
       _id: productId,
     });
     if (newProduct) {
@@ -208,6 +219,28 @@ class ProductFactory {
       throw new BadRequestError('Unpublish product failed!');
     }
   };
+  static changeInventory = async (props: {
+    productId: string;
+    quantity: number;
+    userId: string;
+  }) => {
+    const { productId, quantity, userId } = props;
+    if (!isValidObjectId(productId)) {
+      throw new BadRequestError('Product Id is not valid');
+    }
+    if (!isNumber(quantity)) {
+      throw new BadRequestError('Quantity must be a number');
+    }
+
+    const updatedProduct = await updateInventory({
+      productId,
+      newQuantity: quantity,
+      userId,
+    });
+    if (!updatedProduct) {
+      throw new BadRequestError('Update inventory failed!');
+    }
+  };
 
   // QUERY
   static findAllProductsByUser = async (pagination: TPaginationQuery) => {
@@ -252,11 +285,9 @@ class ProductFactory {
   };
   static findProductById = async ({
     productId,
-    shopId,
     unSelect = [],
   }: {
     productId: string;
-    shopId: string;
     unSelect?: string[];
   }) => {
     if (!isValidObjectId(productId)) {
@@ -265,7 +296,6 @@ class ProductFactory {
     const result = await findProductById({
       productId,
       unSelect,
-      shopId,
     });
     return result;
   };

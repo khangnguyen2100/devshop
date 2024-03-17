@@ -21,6 +21,11 @@ router.post(
   '/publish/:productId',
   asyncHandler(ProductController.publishProduct),
 );
+
+router.post(
+  '/change-inventory/:productId',
+  asyncHandler(ProductController.changeInventory),
+);
 router.post(
   '/unpublish/:productId',
   asyncHandler(ProductController.unPublishProduct),
