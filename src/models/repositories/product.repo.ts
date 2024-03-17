@@ -1,6 +1,10 @@
 import { Model, SortOrder, Types } from 'mongoose';
 import { BadRequestError } from 'src/helpers/core/error.response';
-import { getSelectData, getUnSelectData } from 'src/utils/common';
+import {
+  convertToObjectId,
+  getSelectData,
+  getUnSelectData,
+} from 'src/utils/common';
 import { CartProductInput } from 'src/constants/types/Cart';
 import TProduct from 'src/constants/types/Product';
 
@@ -136,15 +140,22 @@ const findProductById = async ({
   unSelect = [],
 }: {
   productId: string;
-  shopId: string;
+  shopId?: string;
   unSelect?: string[];
 }) => {
+  const query = {
+    _id: convertToObjectId(productId),
+    isPublished: true,
+  } as any;
+
+  if (shopId) {
+    query.createdBy = convertToObjectId(shopId);
+  }
+  console.log('query:', query);
+
   const foundProduct = await productModel
-    .findOne({
-      _id: new Types.ObjectId(productId),
-      isPublished: true,
-      createdBy: new Types.ObjectId(shopId),
-    })
+    .findOne(query)
+    .populate('createdBy', 'name email _id')
     .select(getUnSelectData(unSelect))
     .lean();
 
