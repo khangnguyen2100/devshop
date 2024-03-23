@@ -9,6 +9,7 @@ import routes from 'src/routes';
 
 import 'src/configs/db';
 import 'src/configs/redis';
+import 'src/loggers/discord.log';
 import { countConnectDb } from './helpers/db/checkDbConnect';
 
 const app = express();

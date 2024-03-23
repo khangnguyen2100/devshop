@@ -8,6 +8,7 @@ export const checkApiKey: RequestHandler = async (req, res, next) => {
   try {
     // check api key in header
     const key = req.headers[HEADER.API_KEY]?.toString();
+    console.log('key:', key)
     if (!key) {
       throw new ForbiddenError();
     }

@@ -5,9 +5,13 @@ import {
 } from 'src/helpers/auth/checkApiPermission';
 import { errorHandler } from 'src/middleware/errorHandler';
 import fourOhFour from 'src/middleware/fourOhFour';
+import { pushToLogChanel } from 'src/middleware/logger';
 import v1Routes from 'src/routes/v1';
 
 const routes = express.Router();
+
+// loggers middleware
+routes.use(pushToLogChanel);
 
 // check api permission middleware
 

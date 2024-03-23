@@ -13,7 +13,12 @@ const configEnv = {
   port: process.env['PORT'] ?? 3000,
   mongoUri: process.env['MONGO_URI'] ?? 'mongodb://localhost:27017',
   redisUri: process.env['REDIS_URI'] ?? 'mongodb://localhost:6379',
-
+  discordBotToken: process.env['DISCORD_BOT_TOKEN'] ?? '',
+  discordServerId: process.env['DISCORD_SERVER_ID'] ?? '',
+  discordApiRequestLogChannelId:
+    process.env['DISCORD_API_REQUEST_LOG_CHANNEL_ID'] ?? '',
+  discordGeneralLogChannelId:
+    process.env['DISCORD_GENERAL_LOG_CHANNEL_ID'] ?? '',
   // jwt
   accessTokenExpiresIn: process.env['JWT_ACCESS_EXPIRES_IN'] ?? '1h',
   refreshTokenExpiresIn: process.env['JWT_REFRESH_EXPIRES_IN'] ?? '7d',

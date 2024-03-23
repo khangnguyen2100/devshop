@@ -154,7 +154,7 @@ class OrderService {
       }
       // check if any product is not enough quantity
       if (acquireProductKeyLock.includes(null)) {
-        throw new Error('Some products are not enough quantity');
+        throw new BadRequestError('Some products are not enough quantity');
       }
 
       // create order
