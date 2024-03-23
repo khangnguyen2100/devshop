@@ -1,10 +1,10 @@
 import { RequestHandler } from 'express';
-import TProduct, { TProductType } from 'src/constants/types/Product';
+import { TProductInput, TProductType } from 'src/constants/types/Product';
 import { OK, SuccessResponse } from 'src/helpers/core/success.response';
 import ProductService from 'src/services/product.service';
 import getKeyStored from 'src/utils/getKeyStored';
-import * as Yup from 'yup';
 import { isObjectId, paginationSchema } from 'src/utils/validate';
+import * as Yup from 'yup';
 
 class ProductController {
   static createProductByShopSchema = Yup.object().shape({
@@ -20,7 +20,7 @@ class ProductController {
   });
   static createProductByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
-    const product: TProduct = {
+    const product: TProductInput = {
       ...req.body,
       createdBy: keyStored.user,
     };
@@ -35,7 +35,7 @@ class ProductController {
 
   static updateProductByShopSchema = Yup.object().shape({
     body: Yup.object().shape({
-      _id: isObjectId.required(),
+      productId: isObjectId.required(),
       productName: Yup.string().optional(),
       productDescription: Yup.string().optional(),
       productThumb: Yup.string().optional(),
@@ -48,7 +48,7 @@ class ProductController {
 
   static updateProductByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
-    const product: TProduct = {
+    const product: TProductInput = {
       ...req.body,
       createdBy: keyStored.user,
     };
@@ -219,8 +219,8 @@ class ProductController {
     new OK({
       message: 'Get all products successfully!',
       metadata: await ProductService.findAllProductsByUser({
-        page: Number(page) || undefined || undefined,
-        limit: Number(limit) || undefined || undefined,
+        page: Number(page) || undefined,
+        limit: Number(limit) || undefined,
         sort: sort?.toString() === 'desc' ? 'desc' : 'asc',
         select:
           Number(select?.length) > 0 ? (select as string[]) : defaultSelect,
@@ -248,6 +248,28 @@ class ProductController {
       metadata: await ProductService.findProductById({
         productId,
         unSelect: Number(unSelect?.length) > 0 ? (unSelect as string[]) : [],
+      }),
+    }).send(res);
+  };
+
+  static getProductInCategorySchema = Yup.object().shape({
+    query: paginationSchema,
+    params: Yup.object().shape({
+      category: Yup.string().required(),
+    }),
+  });
+  static getProductInCategory: RequestHandler = async (req, res) => {
+    const { category } = req.params;
+    const { page, limit } = req.query;
+
+    new OK({
+      message: 'Get product by category successfully!',
+      metadata: await ProductService.getProductInCategory({
+        category,
+        pagination: {
+          page: Number(page) || undefined,
+          limit: Number(limit) || undefined,
+        },
       }),
     }).send(res);
   };

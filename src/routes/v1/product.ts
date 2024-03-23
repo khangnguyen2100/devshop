@@ -17,6 +17,11 @@ router.get(
   asyncHandler(ProductController.getAllProducts),
 );
 router.get(
+  '/get-products-in-category/:category',
+  validate(ProductController.getProductInCategorySchema),
+  asyncHandler(ProductController.getProductInCategory),
+);
+router.get(
   '/:productId',
   validate(ProductController.getProductByIdSchema),
   asyncHandler(ProductController.getProductById),

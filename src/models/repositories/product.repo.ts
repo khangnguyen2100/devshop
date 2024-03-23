@@ -1,12 +1,12 @@
 import { Model, SortOrder, Types } from 'mongoose';
+import { CartProductInput } from 'src/constants/types/Cart';
+import { TProductResponse } from 'src/constants/types/Product';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import {
   convertToObjectId,
   getSelectData,
   getUnSelectData,
 } from 'src/utils/common';
-import { CartProductInput } from 'src/constants/types/Cart';
-import TProduct from 'src/constants/types/Product';
 
 import productModel from '../product.model';
 
@@ -151,7 +151,6 @@ const findProductById = async ({
   if (shopId) {
     query.createdBy = convertToObjectId(shopId);
   }
-  console.log('query:', query);
 
   const foundProduct = await productModel
     .findOne(query)
@@ -184,7 +183,7 @@ const updateProductById = async ({
 };
 const getProductsData = async (
   products: CartProductInput[],
-): Promise<TProduct[]> => {
+): Promise<TProductResponse[]> => {
   const result = await Promise.all(
     products.map(async (item: CartProductInput) => {
       const product = await findProductById({
@@ -192,19 +191,19 @@ const getProductsData = async (
         shopId: item.shopId.toString(),
       });
       if (!product) return null;
-      return product as TProduct;
+      return product as TProductResponse;
     }),
   );
-  return result.filter(item => item) as TProduct[];
+  return result.filter(item => item) as TProductResponse[];
 };
 
 export {
   findProductById,
   getAllProducts,
+  getProductsData,
   publishProductByShop,
   queryProduct,
   searchProductsByUser,
   unPublishProductByShop,
   updateProductById,
-  getProductsData,
 };

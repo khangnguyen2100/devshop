@@ -3,23 +3,32 @@ import { Types } from 'mongoose';
 export type TProductType = 'clothing' | 'electronic' | 'furniture';
 
 type TProduct = {
-  _id: string | Types.ObjectId;
   productName: string;
+  productDescription?: string | null;
   productThumb: string;
   productPrice: number;
   productQuantity: number;
-  productDescription?: string | null;
-  productSlug?: string | null;
   productType: TProductType | string;
   productAttributes: object;
-  productRatingAverage: number;
-  productVariations: unknown[];
+  createdBy: string | Types.ObjectId;
+};
+export type TProductInput = TProduct & {
+  productId: string;
+};
+export type TProductResponse = TProduct & {
+  _id: string | Types.ObjectId;
+  productSlug: string | null;
   isDraft: boolean;
   isPublished: boolean;
-
-  createdBy: string | Types.ObjectId;
+  createdBy: {
+    name: string;
+    email: string;
+    _id: string;
+  };
   createdAt: Date | string;
   updatedAt: Date | string;
+  productRatingAverage: number;
+  productVariations: unknown[];
 };
 
 export type TClothing = {

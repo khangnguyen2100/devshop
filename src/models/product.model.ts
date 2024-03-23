@@ -28,7 +28,7 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
     productDescription: { type: String },
-    productSlug: { type: String },
+    productSlug: { type: String, default: null },
     productType: {
       type: String,
       required: true,
@@ -40,7 +40,7 @@ const productSchema = new mongoose.Schema(
     },
     productRatingAverage: {
       type: Number,
-      default: 4.5,
+      default: 5,
       min: [0, 'Rating must be at least 0'],
       max: [5, 'Rating must can not be more than 5'],
       set: (value: number) => Math.round(value * 10) / 10,

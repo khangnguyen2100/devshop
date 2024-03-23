@@ -4,7 +4,7 @@ import {
 } from 'src/constants/enums/product';
 import { CartProductInput } from 'src/constants/types/Cart';
 import TDiscount from 'src/constants/types/Discount';
-import TProduct from 'src/constants/types/Product';
+import { TProductResponse } from 'src/constants/types/Product';
 import { TPaginationQuery } from 'src/constants/types/common';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import discountModel from 'src/models/discount.model';
@@ -100,16 +100,16 @@ class DiscountService {
       throw new BadRequestError('Discount is expired');
     }
 
-    let products: TProduct[] = [];
+    let products: TProductResponse[] = [];
     if (discountAppliesTo === discountAppliesToType.ALL) {
       const query = {
         createdBy: convertToObjectId(shopId),
         isPublished: true,
       };
 
-      products = await getAllProducts({
+      products = (await getAllProducts({
         query,
-      });
+      })) as TProductResponse[];
     }
     if (discountAppliesTo === discountAppliesToType.SPECIFIC) {
       const query = {
@@ -118,9 +118,9 @@ class DiscountService {
         },
         isPublished: true,
       };
-      products = await getAllProducts({
+      products = (await getAllProducts({
         query,
-      });
+      })) as TProductResponse[];
     }
 
     return products;

@@ -1,7 +1,10 @@
 import { isNumber } from 'lodash';
 import { Types, isValidObjectId } from 'mongoose';
 import { COMMON_MESSAGES } from 'src/constants/messages';
-import TProduct, { TProductType } from 'src/constants/types/Product';
+import TProduct, {
+  TProductInput,
+  TProductType,
+} from 'src/constants/types/Product';
 import { TPaginationQuery } from 'src/constants/types/common';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import productModel, {
@@ -170,7 +173,7 @@ class ProductFactory {
     this.productRegistry[type] = classRef;
   };
 
-  static createProduct = async (type: TProductType, payload: TProduct) => {
+  static createProduct = async (type: TProductType, payload: TProductInput) => {
     const ProductClass = this.productRegistry[type];
 
     if (!ProductClass) {
@@ -182,14 +185,14 @@ class ProductFactory {
 
     return new ProductClass(payload).createProduct();
   };
-  static updateProduct = async (type: TProductType, payload: TProduct) => {
+  static updateProduct = async (type: TProductType, payload: TProductInput) => {
     const ProductClass = this.productRegistry[type];
 
     if (!ProductClass) {
       throw new BadRequestError(`Invalid Product type: ${type}`);
     }
 
-    return new ProductClass(payload).updateProduct(payload._id);
+    return new ProductClass(payload).updateProduct(payload.productId);
   };
 
   static publishProductByShop = async (productId: string, userId: string) => {
@@ -295,6 +298,20 @@ class ProductFactory {
       unSelect,
     });
     return result;
+  };
+
+  static getProductInCategory = async ({
+    category,
+    pagination,
+  }: {
+    category: string;
+    pagination: TPaginationQuery;
+  }) => {
+    const query = {
+      isPublished: true,
+      productType: category,
+    };
+    return await queryProduct({ query, ...pagination });
   };
 }
 

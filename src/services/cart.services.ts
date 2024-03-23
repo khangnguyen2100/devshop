@@ -1,9 +1,10 @@
+import { toNumber } from 'lodash';
 import {
   CartProduct,
   CartProductInput,
   UpdateCartPayload,
 } from 'src/constants/types/Cart';
-import TProduct from 'src/constants/types/Product';
+import { TProductResponse } from 'src/constants/types/Product';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import cartModel from 'src/models/cart.model';
 import {
@@ -62,6 +63,8 @@ class CartService {
   }
 
   static async updateProductAmount(payload: UpdateCartPayload) {
+    payload.oldQuantity = toNumber(payload.oldQuantity);
+    payload.quantity = toNumber(payload.quantity);
     const { cartId, productId, quantity, oldQuantity, version } = payload;
 
     if (quantity <= 0) {
@@ -75,7 +78,7 @@ class CartService {
     }
     const productsData = await getProductsData(foundCart.cartProducts);
     const updatedProducts = productsData.map(
-      (item: TProduct, index: number) => {
+      (item: TProductResponse, index: number) => {
         if (item._id.toString() === productId) {
           if (foundCart.cartProducts[index].quantity !== oldQuantity) {
             throw new BadRequestError(
@@ -91,7 +94,7 @@ class CartService {
           return {
             price: item.productPrice,
             productId: item._id.toString(),
-            shopId: item.createdBy.toString(),
+            shopId: item.createdBy._id.toString(),
             name: item.productName,
             quantity,
           } as CartProduct;
@@ -99,7 +102,7 @@ class CartService {
           return {
             price: item.productPrice,
             productId: item._id.toString(),
-            shopId: item.createdBy.toString(),
+            shopId: item.createdBy._id.toString(),
             name: item.productName,
             quantity: item.productQuantity,
           } as CartProduct;
