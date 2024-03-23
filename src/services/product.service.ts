@@ -188,9 +188,6 @@ class ProductFactory {
     if (!ProductClass) {
       throw new BadRequestError(`Invalid Product type: ${type}`);
     }
-    if (!payload._id) {
-      throw new BadRequestError('Product Id is required');
-    }
 
     return new ProductClass(payload).updateProduct(payload._id);
   };

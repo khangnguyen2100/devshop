@@ -3,9 +3,22 @@ import TProduct, { TProductType } from 'src/constants/types/Product';
 import { OK, SuccessResponse } from 'src/helpers/core/success.response';
 import ProductService from 'src/services/product.service';
 import getKeyStored from 'src/utils/getKeyStored';
+import * as Yup from 'yup';
+import { isObjectId, paginationSchema } from 'src/utils/validate';
 
 class ProductController {
-  static createProduct: RequestHandler = async (req, res) => {
+  static createProductByShopSchema = Yup.object().shape({
+    body: Yup.object().shape({
+      productName: Yup.string().required(),
+      productDescription: Yup.string().required(),
+      productThumb: Yup.string().required(),
+      productPrice: Yup.number().required(),
+      productQuantity: Yup.number().required(),
+      productType: Yup.string().required(),
+      productAttributes: Yup.object().required(),
+    }),
+  });
+  static createProductByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const product: TProduct = {
       ...req.body,
@@ -20,7 +33,20 @@ class ProductController {
     }).send(res);
   };
 
-  static updateProduct: RequestHandler = async (req, res) => {
+  static updateProductByShopSchema = Yup.object().shape({
+    body: Yup.object().shape({
+      _id: isObjectId.required(),
+      productName: Yup.string().optional(),
+      productDescription: Yup.string().optional(),
+      productThumb: Yup.string().optional(),
+      productPrice: Yup.number().optional(),
+      productQuantity: Yup.number().optional(),
+      productType: Yup.string().optional(),
+      productAttributes: Yup.object().optional(),
+    }),
+  });
+
+  static updateProductByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const product: TProduct = {
       ...req.body,
@@ -43,7 +69,9 @@ class ProductController {
    * @param {Number} limit - default 50
    * @param {Number} sort - default asc
    */
-
+  static getAllDraftByShopSchema = Yup.object().shape({
+    query: paginationSchema,
+  });
   static getAllDraftByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const { page, limit } = req.query;
@@ -61,14 +89,20 @@ class ProductController {
     }).send(res);
   };
 
-  static getAllPublishByShop: RequestHandler = async (req, res) => {
-    const keyStored = getKeyStored(req);
+  static getAllPublishProductsInShopSchema = Yup.object().shape({
+    query: paginationSchema,
+    params: Yup.object().shape({
+      shopId: isObjectId,
+    }),
+  });
+  static getAllPublishProductsInShop: RequestHandler = async (req, res) => {
     const { page, limit } = req.query;
+    const { shopId } = req.params;
     new OK({
       message: 'Get all publish products successfully!',
       metadata: await ProductService.findAllPublishProductsByShop(
         {
-          productShop: keyStored.user,
+          productShop: shopId as string,
         },
         {
           page: Number(page) || undefined,
@@ -81,8 +115,12 @@ class ProductController {
    * @description Publish status to true
    * @param {ObjectId} productId
    */
-
-  static publishProduct: RequestHandler = async (req, res) => {
+  static publishProductByShopSchema = Yup.object().shape({
+    params: Yup.object().shape({
+      productId: isObjectId,
+    }),
+  });
+  static publishProductByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const { productId } = req.params;
     new OK({
@@ -93,6 +131,15 @@ class ProductController {
       ),
     }).send(res);
   };
+
+  static changeInventorySchema = Yup.object().shape({
+    params: Yup.object().shape({
+      productId: isObjectId,
+    }),
+    query: Yup.object().shape({
+      quantity: Yup.number().required(),
+    }),
+  });
   static changeInventory: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const { productId } = req.params;
@@ -106,7 +153,13 @@ class ProductController {
       }),
     }).send(res);
   };
-  static unPublishProduct: RequestHandler = async (req, res) => {
+
+  static unPublishProductByShopSchema = Yup.object().shape({
+    params: Yup.object().shape({
+      productId: isObjectId,
+    }),
+  });
+  static unPublishProductByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const { productId } = req.params;
     new OK({
@@ -124,7 +177,12 @@ class ProductController {
    * @param {Number} page - default 1
    * @param {Number} limit - default 50
    */
-
+  static searchProductByUserSchema = Yup.object().shape({
+    query: Yup.object().shape({
+      keyword: Yup.string().required(),
+      ...paginationSchema.fields,
+    }),
+  });
   static searchProductByUser: RequestHandler = async (req, res) => {
     const { keyword, page, limit } = req.query;
 
@@ -144,6 +202,10 @@ class ProductController {
   /**
    * @description get all products from every shop
    */
+
+  static getAllProductsSchema = Yup.object().shape({
+    query: paginationSchema,
+  });
   static getAllProducts: RequestHandler = async (req, res) => {
     const { page, limit, sort, select } = req.query;
     const defaultSelect = [
@@ -170,7 +232,14 @@ class ProductController {
    * @description Get product by id
    * @param {ObjectId} productId
    */
-
+  static getProductByIdSchema = Yup.object().shape({
+    params: Yup.object().shape({
+      productId: isObjectId,
+    }),
+    query: Yup.object().shape({
+      unSelect: Yup.array().of(Yup.string()),
+    }),
+  });
   static getProductById: RequestHandler = async (req, res) => {
     const { productId } = req.params;
     const { unSelect } = req.query;
