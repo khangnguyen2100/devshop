@@ -20,6 +20,11 @@ const isObjectId = Yup.string().matches(/^[0-9a-fA-F]{24}$/, 'Invalid ID');
 const paginationSchema = Yup.object().shape({
   page: Yup.number().min(0).required(),
   limit: Yup.number().min(1).required(),
+  sort: Yup.string().optional(),
+  select: Yup.array().of(Yup.string()).optional(),
+  unSelect: Yup.array().of(Yup.string()).optional(),
 });
+const yupObject = (object: any) => Yup.object().shape(object);
+const yupArray = (array: any) => Yup.array().of(array);
 
-export { validate, isObjectId, paginationSchema };
+export { validate, isObjectId, paginationSchema, yupObject, yupArray };

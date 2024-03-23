@@ -4,8 +4,16 @@ import { Created, SuccessResponse } from 'src/helpers/core/success.response';
 import AuthService from 'src/services/auth.service';
 import { clearJWTCookies, getJWTCookies } from 'src/utils/cookieJWT';
 import getKeyStored from 'src/utils/getKeyStored';
-
+import { yupObject } from 'src/utils/validate';
+import * as Yup from 'yup';
 class AuthController {
+  static signUpSchema = yupObject({
+    body: yupObject({
+      email: Yup.string().email().required(),
+      password: Yup.string().min(6).max(20).required(),
+      name: Yup.string().required(),
+    }),
+  });
   static signUp: RequestHandler = async (req, res) => {
     return new Created({
       message: AUTH_MESSAGES.SIGNUP_SUCCESS,
@@ -13,6 +21,12 @@ class AuthController {
     }).send(res);
   };
 
+  static loginSchema = yupObject({
+    body: yupObject({
+      email: Yup.string().email().required(),
+      password: Yup.string().min(6).max(20).required(),
+    }),
+  });
   static login: RequestHandler = async (req, res) => {
     return new SuccessResponse({
       message: AUTH_MESSAGES.LOGIN_SUCCESS,

@@ -4,8 +4,20 @@ import TDiscount from 'src/constants/types/Discount';
 import { OK, SuccessResponse } from 'src/helpers/core/success.response';
 import DiscountService from 'src/services/discount.service';
 import getKeyStored from 'src/utils/getKeyStored';
-
+import {
+  isObjectId,
+  paginationSchema,
+  yupArray,
+  yupObject,
+} from 'src/utils/validate';
+import * as Yup from 'yup';
 class DiscountController {
+  static getAllAvailableProductsByDiscountCodeInShopSchema = yupObject({
+    query: yupObject({
+      discountCode: Yup.string().required(),
+      shopId: Yup.string().required(),
+    }),
+  });
   static getAllAvailableProductsByDiscountCodeInShop: RequestHandler = async (
     req,
     res,
@@ -20,6 +32,12 @@ class DiscountController {
     }).send(res);
   };
 
+  static getAllDiscountInShopSchema = yupObject({
+    query: yupObject({
+      ...paginationSchema.fields,
+      shopId: isObjectId.required(),
+    }),
+  });
   static getAllDiscountInShop: RequestHandler = async (req, res) => {
     const { page, limit, shopId } = req.query;
     new OK({
@@ -32,6 +50,19 @@ class DiscountController {
   };
 
   // authentication
+  static createDiscountByShopSchema = yupObject({
+    body: yupObject({
+      discountName: Yup.string().required(),
+      discountCode: Yup.string().required(),
+      discountMaxUses: Yup.number().min(1).required(),
+      discountMaxUsesPerUser: Yup.number().min(1).required(),
+      discountMinOrderValue: Yup.number().min(0).required(),
+      discountType: Yup.string().oneOf(['PERCENT', 'FIXED']).required(),
+      discountValue: Yup.number().min(0).required(),
+      discountAppliesTo: Yup.string().required(),
+      discountEndDate: Yup.date().required(),
+    }),
+  });
   static createDiscountByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const newDiscount: TDiscount = {
@@ -44,6 +75,20 @@ class DiscountController {
       metadata: await DiscountService.createDiscountByShop(newDiscount),
     }).send(res);
   };
+
+  static getDiscountAmountByUserSchema = yupObject({
+    body: yupObject({
+      shopId: isObjectId.required(),
+      cartProducts: yupArray(
+        yupObject({
+          productId: isObjectId.required(),
+          shopId: isObjectId.required(),
+          quantity: Yup.number().required(),
+        }),
+      ),
+      discountCode: Yup.string().required(),
+    }),
+  });
   static getDiscountAmountByUser: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
 
@@ -58,6 +103,12 @@ class DiscountController {
       }),
     }).send(res);
   };
+
+  static deleteDiscountByShopSchema = yupObject({
+    params: yupObject({
+      discountId: isObjectId.required(),
+    }),
+  });
   static deleteDiscountByShop: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
     const { discountId } = req.params;
@@ -69,6 +120,13 @@ class DiscountController {
       ),
     }).send(res);
   };
+
+  static cancelDiscountByUserSchema = yupObject({
+    query: yupObject({
+      discountCode: Yup.string().required(),
+      shopId: isObjectId.required(),
+    }),
+  });
   static cancelDiscountByUser: RequestHandler = async (req, res) => {
     const keyStored = getKeyStored(req);
 
