@@ -41,10 +41,11 @@ const changeOrderStatus = async (props: {
       orderStatus: oldStatus,
     },
     { orderStatus: newStatus },
-    { session },
+    { session, new: true },
   );
   return result;
 };
+
 const findOrderById = async (orderId: string) => {
   const result = await orderModel.findById(convertToObjectId(orderId));
   return result;

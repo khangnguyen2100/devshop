@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { orderStatus, orderStatusColorMap } from 'src/constants/enums/Order';
 import { CartProduct } from 'src/constants/types/Cart';
 import {
   OrderStatus,
@@ -17,7 +18,8 @@ import {
   createOrder,
   findOrderById,
 } from 'src/models/repositories/order.repo';
-import { orderStatus } from 'src/constants/enums/Order';
+import { formatNumber } from 'src/utils/number';
+import { sendOrderLogMessage } from 'src/middleware/logger';
 
 import DiscountService from './discount.service';
 import {
@@ -35,6 +37,29 @@ type OrderByUserProps = {
 };
 
 const FREE_SHIP_PRICE = 30000; // 30k
+const handleCheckBeforeChangeOrderStatus = (
+  oldStatus: OrderStatus,
+  newStatus: OrderStatus,
+) => {
+  // check is change status valid
+  const { PENDING, CONFIRMED, CANCELED, SHIPPED, COMPLETED } = orderStatus;
+  if (
+    oldStatus === PENDING &&
+    (newStatus === CANCELED || newStatus === CONFIRMED)
+  ) {
+    return;
+  }
+  if (oldStatus === CONFIRMED && newStatus === SHIPPED) {
+    return;
+  }
+  if (oldStatus === SHIPPED && newStatus === COMPLETED) {
+    return;
+  }
+  throw new BadRequestError(
+    `You cannot update status from ${oldStatus} to ${newStatus}.`,
+  );
+};
+
 class OrderService {
   static async getCheckoutReview({
     userId,
@@ -167,7 +192,7 @@ class OrderService {
       }
 
       // create order
-      const createdOrder = await createOrder(
+      const createdOrderSuccess = await createOrder(
         {
           orderUserId: userId,
           orderShippingAddress: userAddress,
@@ -177,16 +202,57 @@ class OrderService {
         },
         session,
       );
-      // remove product in cart
-
-      await session.commitTransaction();
-
-      return {
-        orderReviewDetail,
-        prices,
-        products,
-        createdOrder,
-      };
+      const newOrder = createdOrderSuccess[0];
+      if (createdOrderSuccess.length > 0 && newOrder) {
+        // push notification
+        const codeMessage = {
+          embeds: [
+            {
+              color: parseInt(orderStatusColorMap['pending'], 16),
+              title: `New Order: ${newOrder.orderTrackingNumber}!`,
+              url: 'https://discord.js.org',
+              description: `You have new order!`,
+              fields: [
+                {
+                  name: 'Total Price',
+                  value: `${formatNumber(
+                    newOrder.orderCheckoutPrices.totalPrice,
+                  )}`,
+                  inline: true,
+                },
+                {
+                  name: 'Discount Price',
+                  value: `${formatNumber(
+                    newOrder.orderCheckoutPrices.totalDiscount,
+                  )}`,
+                  inline: true,
+                },
+                {
+                  name: 'Final Price',
+                  value: `**${formatNumber(
+                    newOrder.orderCheckoutPrices.finalPrice,
+                  )}**`,
+                },
+                {
+                  name: 'Shipping address',
+                  value: newOrder.orderShippingAddress,
+                  inline: true,
+                },
+              ],
+            },
+          ],
+        };
+        sendOrderLogMessage(codeMessage);
+        await session.commitTransaction();
+        return {
+          orderReviewDetail,
+          prices,
+          products,
+          createdOrder: newOrder,
+        };
+      } else {
+        throw new Error('Create new order failed!');
+      }
     } catch (error: any) {
       console.log('abortTransaction:');
       await session.abortTransaction();
@@ -220,7 +286,6 @@ class OrderService {
 
     // find order
     const foundOrder = await findOrderById(orderId);
-    console.log('foundOrder:', foundOrder);
     if (!foundOrder) {
       throw new BadRequestError('Order not found!');
     }
@@ -238,7 +303,6 @@ class OrderService {
     const session = await mongoose.startSession();
     session.startTransaction();
     const orderProducts = foundOrder.orderProducts as CartProduct[];
-    console.log('orderProducts:', orderProducts);
     const acquireProductKeyLock: (string | null)[] = [];
     // công lại số hàng đã trừ trong kho
     try {
@@ -270,7 +334,6 @@ class OrderService {
         newStatus: orderStatus.CANCELED,
         session,
       });
-      console.log('canceledOrder:', canceledOrder);
       await session.commitTransaction();
       return canceledOrder;
     } catch (error: any) {
@@ -286,7 +349,50 @@ class OrderService {
       }
     }
   }
-  static async updateStatusByShop() {}
+  static async updateOrderStatusByShop(props: {
+    orderId: string;
+    orderUserId: string;
+    oldStatus: OrderStatus;
+    newStatus: OrderStatus;
+  }) {
+    const { orderId, orderUserId, oldStatus, newStatus } = props;
+    handleCheckBeforeChangeOrderStatus(oldStatus, newStatus);
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const updatedOrder = await changeOrderStatus({
+        orderId,
+        orderUserId,
+        oldStatus,
+        newStatus,
+        session,
+      });
+
+      if (updatedOrder) {
+        // push notification
+        const codeMessage = {
+          embeds: [
+            {
+              color: parseInt(orderStatusColorMap[newStatus], 16),
+              title: `Order: ${updatedOrder.orderTrackingNumber} status changed!`,
+              description: `From: **${oldStatus}** to: **${newStatus}**`,
+            },
+          ],
+        };
+        sendOrderLogMessage(codeMessage);
+        await session.commitTransaction();
+        return updatedOrder;
+      } else {
+        throw new BadRequestError(
+          'Order had been updated! Please re-load page and try again!',
+        );
+      }
+    } catch (error: any) {
+      await session.abortTransaction();
+      throw new BadRequestError(error.message);
+    }
+  }
 }
 
 export default OrderService;

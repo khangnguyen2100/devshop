@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import { OrderStatus } from 'src/constants/types/Order';
 import { OK } from 'src/helpers/core/success.response';
 import OrderService from 'src/services/order.service';
 import getKeyStored from 'src/utils/getKeyStored';
@@ -66,6 +67,7 @@ class OrderController {
       }),
     }).send(res);
   };
+
   static cancelOrderSchema = yupObject({
     query: yupObject({
       orderId: isObjectId.required(),
@@ -83,6 +85,26 @@ class OrderController {
         orderUserId: keyStored.user,
         cartId: cartId as string,
         orderStatus: orderStatus as string,
+      }),
+    }).send(res);
+  };
+  static updateStatusOrderSchema = yupObject({
+    query: yupObject({
+      orderId: isObjectId.required(),
+      oldStatus: Yup.string().required(),
+      newStatus: Yup.string().required(),
+    }),
+  });
+  static updateOrderStatusByShop: RequestHandler = async (req, res) => {
+    const { orderId, oldStatus, newStatus } = req.query;
+    const keyStored = getKeyStored(req);
+    new OK({
+      message: 'Changed order status successfully!',
+      metadata: await OrderService.updateOrderStatusByShop({
+        orderId: orderId as string,
+        orderUserId: keyStored.user,
+        oldStatus: oldStatus as OrderStatus,
+        newStatus: newStatus as OrderStatus,
       }),
     }).send(res);
   };

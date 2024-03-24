@@ -43,9 +43,10 @@ const orderSchema = new mongoose.Schema(
     },
     orderTrackingNumber: {
       type: String,
+      unique: true,
       default: `#SHIPPING_CODE_${dayjs().format('DD.MM.YYYY')}-${randomInt(
         1000,
-        99999,
+        9999999999,
       )}`,
     },
   },

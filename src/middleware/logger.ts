@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import configEnv from 'src/configs/config.env';
 import loggerService from 'src/loggers/discord.log';
 
-const pushToLogChanel: RequestHandler = async (req, res, next) => {
+const pushApiLogToChanel: RequestHandler = async (req, res, next) => {
   try {
     // Get data from request
     const data = {} as any;
@@ -31,4 +31,10 @@ const pushToLogChanel: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
-export { pushToLogChanel };
+const sendOrderLogMessage = (codeMessage: any) => {
+  const chanel = loggerService.getChanel(configEnv.discordOrderNotifyChannelId);
+  chanel.send(codeMessage).catch(error => {
+    console.error('Message not sent: ', error);
+  });
+};
+export { pushApiLogToChanel, sendOrderLogMessage };

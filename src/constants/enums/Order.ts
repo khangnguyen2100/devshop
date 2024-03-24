@@ -7,4 +7,11 @@ const orderStatus: Record<string, OrderStatus> = {
   SHIPPED: 'shipped',
   COMPLETED: 'completed',
 };
-export { orderStatus };
+const orderStatusColorMap = {
+  pending: 'FFA500', // Orange
+  confirmed: 'FFFF00', // Yellow
+  canceled: 'FF0000', // Red
+  shipped: '008000', // Green
+  completed: '0000FF', // Blue
+};
+export { orderStatus, orderStatusColorMap };

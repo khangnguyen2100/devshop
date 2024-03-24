@@ -19,6 +19,8 @@ const configEnv = {
     process.env['DISCORD_API_REQUEST_LOG_CHANNEL_ID'] ?? '',
   discordGeneralLogChannelId:
     process.env['DISCORD_GENERAL_LOG_CHANNEL_ID'] ?? '',
+  discordOrderNotifyChannelId:
+    process.env['DISCORD_ORDER_NOTIFY_CHANNEL_ID'] ?? '',
   // jwt
   accessTokenExpiresIn: process.env['JWT_ACCESS_EXPIRES_IN'] ?? '1h',
   refreshTokenExpiresIn: process.env['JWT_REFRESH_EXPIRES_IN'] ?? '7d',

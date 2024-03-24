@@ -23,5 +23,10 @@ router.post(
   validate(OrderController.cancelOrderSchema),
   asyncHandler(OrderController.cancelOrderByUser),
 );
+router.post(
+  '/update-status',
+  validate(OrderController.updateStatusOrderSchema),
+  asyncHandler(OrderController.updateOrderStatusByShop),
+);
 
 export default router;
