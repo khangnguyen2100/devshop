@@ -42,20 +42,7 @@ type OrderCheckoutPrices = {
 
 type TOrderBase = {
   orderUserId: string | ObjectId;
-  orderProducts: CartProduct[];
-  orderCheckoutPrices: OrderCheckoutPrices;
-  orderShippingAddress: ShippingAddress;
-  orderPaymentMethod: PaymentMethod;
-};
-type TOrderInput = TOrderBase & {
-  orderTrackingNumber?: string;
-  orderStatus?: OrderStatus;
-};
-type TOrderResponse = TOrderBase &
-  MongoTimestamps & {
-    orderStatus: OrderStatus;
-    orderTrackingNumber: string;
-  };
+  orderProducts: CartProduct[]or
 
 export {
   TOrderInput,

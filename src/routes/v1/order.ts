@@ -18,5 +18,10 @@ router.post(
   validate(OrderController.orderByUserSchema),
   asyncHandler(OrderController.orderByUser),
 );
+router.post(
+  '/cancel-by-user',
+  validate(OrderController.cancelOrderSchema),
+  asyncHandler(OrderController.cancelOrderByUser),
+);
 
 export default router;

@@ -14,14 +14,14 @@ const orderDataSchema = yupArray(
         code: Yup.string().required(),
         discountId: isObjectId.required(),
       }),
-    ),
+    ).required(),
     itemProducts: yupArray(
       yupObject({
         productId: isObjectId.required(),
         shopId: isObjectId.required(),
         quantity: Yup.number().required(),
       }),
-    ),
+    ).required(),
   }),
 ).required();
 class OrderController {
@@ -52,7 +52,6 @@ class OrderController {
   static orderByUser: RequestHandler = async (req, res) => {
     const { cartId } = req.params;
     const keyStored = getKeyStored(req);
-    console.log('req.body:', req.body)
 
     const body = req.body;
     new OK({
@@ -64,6 +63,26 @@ class OrderController {
         cartId: cartId,
         paymentMethod: body.paymentMethod,
         userAddress: body.userAddress,
+      }),
+    }).send(res);
+  };
+  static cancelOrderSchema = yupObject({
+    query: yupObject({
+      orderId: isObjectId.required(),
+      cartId: isObjectId.required(),
+      orderStatus: Yup.string().required(),
+    }),
+  });
+  static cancelOrderByUser: RequestHandler = async (req, res) => {
+    const { orderId, orderStatus, cartId } = req.query;
+    const keyStored = getKeyStored(req);
+    new OK({
+      message: 'Canceled order successfully!',
+      metadata: await OrderService.cancelOrderByUser({
+        orderId: orderId as string,
+        orderUserId: keyStored.user,
+        cartId: cartId as string,
+        orderStatus: orderStatus as string,
       }),
     }).send(res);
   };

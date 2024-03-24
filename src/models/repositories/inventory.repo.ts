@@ -69,25 +69,44 @@ const reservationInventory = async (props: {
       $gte: quantity,
     },
   };
-  const updateSet = {
-    $inc: {
-      invenStock: -quantity,
-    },
-    $push: {
-      invenReservations: {
-        cartId,
-        quantity,
-        createdAt: new Date(),
-      },
-    },
-  };
-
-  const result = await inventoryModel.updateOne(query, updateSet, {
-    new: true,
-    session: session,
+  const foundInventory = await inventoryModel.findOne(query);
+  if (!foundInventory) {
+    return null;
+  }
+  foundInventory.invenStock -= quantity;
+  foundInventory.invenReservations.push({
+    cartId,
+    quantity,
+    createdAt: new Date(),
   });
+  return foundInventory.save({
+    session,
+  });
+};
 
-  return result;
+// back lại số lượng trong kho khi hủy đơn hàng
+const cancelReservationInventory = async (props: {
+  productId: string;
+  cartId: string;
+  quantity: number;
+  session?: ClientSession;
+}) => {
+  const { cartId, productId, quantity, session } = props;
+
+  const query = {
+    invenProductId: convertToObjectId(productId),
+  };
+  const foundInventory = await inventoryModel.findOne(query);
+  if (!foundInventory) {
+    return null;
+  }
+  foundInventory.invenStock += quantity;
+  foundInventory.invenReservations = foundInventory.invenReservations.filter(
+    item => item.cartId !== cartId,
+  );
+  return await foundInventory.save({
+    session,
+  });
 };
 
 export {
@@ -95,4 +114,5 @@ export {
   insertInventory,
   reservationInventory,
   updateInventory,
+  cancelReservationInventory,
 };

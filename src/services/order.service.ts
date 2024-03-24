@@ -1,4 +1,7 @@
+import mongoose from 'mongoose';
+import { CartProduct } from 'src/constants/types/Cart';
 import {
+  OrderStatus,
   PaymentMethod,
   ShippingAddress,
   TOrderData,
@@ -8,13 +11,20 @@ import {
   findCartByUserId,
   getCartProductsData,
 } from 'src/models/repositories/cart.repo';
-import { createOrder } from 'src/models/repositories/order.repo';
-import { CartProduct } from 'src/constants/types/Cart';
 import { checkIsEnoughQuantity } from 'src/models/repositories/inventory.repo';
-import mongoose from 'mongoose';
+import {
+  changeOrderStatus,
+  createOrder,
+  findOrderById,
+} from 'src/models/repositories/order.repo';
+import { orderStatus } from 'src/constants/enums/Order';
 
 import DiscountService from './discount.service';
-import { acquireLock, releaseLock } from './redis.service';
+import {
+  acquireLockCancelOrder,
+  acquireLockCartReservation,
+  releaseLock,
+} from './redis.service';
 
 type OrderByUserProps = {
   userAddress: ShippingAddress;
@@ -143,13 +153,12 @@ class OrderService {
       for (let i = 0; i < products.length; i++) {
         const { productId, quantity, shopId } = products[i];
 
-        const keyLock = await acquireLock({
+        const keyLock = await acquireLockCartReservation({
           cartId,
           productId: productId.toString(),
           quantity,
           session,
         });
-        console.log('keyLock:', keyLock);
         acquireProductKeyLock.push(keyLock ? keyLock : null);
       }
       // check if any product is not enough quantity
@@ -168,8 +177,8 @@ class OrderService {
         },
         session,
       );
+      // remove product in cart
 
-      console.log('commitTransaction:');
       await session.commitTransaction();
 
       return {
@@ -196,7 +205,87 @@ class OrderService {
   static async getOrdersByUser() {}
   static async getOrderByUser() {}
   static async updateStatusByUser() {}
-  static async cancelOrderByUser() {}
+  static async cancelOrderByUser(props: {
+    cartId: string;
+    orderId: string;
+    orderUserId: string;
+    orderStatus: string;
+  }) {
+    const {
+      cartId,
+      orderId,
+      orderUserId,
+      orderStatus: currentOrderStatus,
+    } = props;
+
+    // find order
+    const foundOrder = await findOrderById(orderId);
+    console.log('foundOrder:', foundOrder);
+    if (!foundOrder) {
+      throw new BadRequestError('Order not found!');
+    }
+    if (foundOrder.orderStatus !== currentOrderStatus) {
+      throw new BadRequestError(
+        'Order had been updated, Please re-load page and try again!',
+      );
+    }
+    if (foundOrder.orderStatus !== orderStatus.PENDING) {
+      throw new BadRequestError(
+        'Sorry your order is confirmed, you can not cancel it. Please contact the shop.',
+      );
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const orderProducts = foundOrder.orderProducts as CartProduct[];
+    console.log('orderProducts:', orderProducts);
+    const acquireProductKeyLock: (string | null)[] = [];
+    // công lại số hàng đã trừ trong kho
+    try {
+      for (let i = 0; i < orderProducts.length; i++) {
+        const { productId, quantity } = orderProducts[i];
+        // remove product in cart
+        const keyLock = await acquireLockCancelOrder({
+          cartId,
+          orderId,
+          productId: productId.toString(),
+          quantity,
+          session,
+        });
+        acquireProductKeyLock.push(keyLock ? keyLock : null);
+        console.log('keyLock:', keyLock);
+      }
+      // check if any product is not enough quantity
+      if (acquireProductKeyLock.includes(null)) {
+        throw new BadRequestError(
+          'Some products are not found, Please try again!',
+        );
+      }
+
+      // cancel order
+      const canceledOrder = await changeOrderStatus({
+        orderId,
+        orderUserId,
+        oldStatus: currentOrderStatus as OrderStatus,
+        newStatus: orderStatus.CANCELED,
+        session,
+      });
+      console.log('canceledOrder:', canceledOrder);
+      await session.commitTransaction();
+      return canceledOrder;
+    } catch (error: any) {
+      await session.abortTransaction();
+      throw new BadRequestError(error.message);
+    } finally {
+      session.endSession();
+      // release all locks, regardless of whether the transaction was successful
+      for (const keyLock of acquireProductKeyLock) {
+        if (keyLock) {
+          await releaseLock(keyLock);
+        }
+      }
+    }
+  }
   static async updateStatusByShop() {}
 }
 

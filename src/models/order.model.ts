@@ -1,3 +1,5 @@
+import { randomInt } from 'crypto';
+
 import dayjs from 'dayjs';
 import mongoose, { Schema } from 'mongoose';
 import { COLLECTION_NAMES, DOCUMENT_NAMES } from 'src/constants/enums/common';
@@ -41,7 +43,10 @@ const orderSchema = new mongoose.Schema(
     },
     orderTrackingNumber: {
       type: String,
-      default: `#SHIPPING_CODE_${dayjs().format('DD.MM.YYYY')}`,
+      default: `#SHIPPING_CODE_${dayjs().format('DD.MM.YYYY')}-${randomInt(
+        1000,
+        99999,
+      )}`,
     },
   },
   {

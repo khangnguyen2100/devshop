@@ -2,7 +2,6 @@ import mongoose, { Schema } from 'mongoose';
 import { COLLECTION_NAMES, DOCUMENT_NAMES } from 'src/constants/enums/common';
 import { BadRequestError } from 'src/helpers/core/error.response';
 import { convertToObjectId } from 'src/utils/common';
-import TInventory from 'src/constants/types/Inventory';
 
 import productModel from './product.model';
 
@@ -48,23 +47,6 @@ inventorySchema.pre('save', async function (next) {
       );
     }
     product.productQuantity = this.invenStock;
-    await product.save();
-  }
-  next();
-});
-inventorySchema.pre('updateOne', async function (next) {
-  const updatedData = this.getUpdate() as TInventory;
-  if (updatedData.invenStock) {
-    const product = await productModel.findOne({
-      _id: convertToObjectId(updatedData.invenProductId),
-      createdBy: convertToObjectId(updatedData.invenShopId),
-    });
-    if (!product) {
-      throw new BadRequestError(
-        'Update inventory failed. Product is not found.',
-      );
-    }
-    product.productQuantity = updatedData.invenStock;
     await product.save();
   }
   next();
