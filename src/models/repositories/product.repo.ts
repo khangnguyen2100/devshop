@@ -40,8 +40,8 @@ const queryProduct = async ({
   return {
     page,
     limit,
-    data: result,
     total,
+    data: result,
   };
 };
 
@@ -71,19 +71,19 @@ const searchProductsByUser = async ({
     updatedAt: sort as SortOrder,
     score: { $meta: 'textScore' },
   };
+  const query = {
+    $text: {
+      $search: keyword,
+      $caseSensitive: false,
+    },
+    isPublished: true,
+  };
+  const score = {
+    score: { $meta: 'textScore' },
+  };
+  const total = await productModel.countDocuments(query);
   const results = await productModel
-    .find(
-      {
-        $text: {
-          $search: keyword,
-          $caseSensitive: false,
-        },
-        isPublished: true,
-      },
-      {
-        score: { $meta: 'textScore' },
-      },
-    )
+    .find(query, score)
     .populate('createdBy', 'name email _id')
     .sort(sortBy)
     .skip(skip)
@@ -91,7 +91,12 @@ const searchProductsByUser = async ({
     .select(getSelectData(select))
     .lean()
     .exec();
-  return results;
+  return {
+    page,
+    limit,
+    total,
+    data: results,
+  };
 };
 
 const publishProductByShop = async ({

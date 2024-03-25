@@ -35,10 +35,10 @@ const queryDiscount = async ({
     .exec();
 
   return {
-    data: result,
     page,
     limit,
     total,
+    data: result,
   };
 };
 
