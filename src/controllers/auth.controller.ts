@@ -17,7 +17,7 @@ class AuthController {
   static signUp: RequestHandler = async (req, res) => {
     return new Created({
       message: AUTH_MESSAGES.SIGNUP_SUCCESS,
-      metadata: await AuthService.signUp(req.body, res),
+      data: await AuthService.signUp(req.body, res),
     }).send(res);
   };
 
@@ -30,7 +30,7 @@ class AuthController {
   static login: RequestHandler = async (req, res) => {
     return new SuccessResponse({
       message: AUTH_MESSAGES.LOGIN_SUCCESS,
-      metadata: await AuthService.login(req.body, res),
+      data: await AuthService.login(req.body, res),
     }).send(res);
   };
 
@@ -40,7 +40,7 @@ class AuthController {
     clearJWTCookies(res);
     return new SuccessResponse({
       message: AUTH_MESSAGES.LOGOUT_SUCCESS,
-      metadata: await AuthService.logout(keyStored),
+      data: await AuthService.logout(keyStored),
     }).send(res);
   };
 
@@ -49,7 +49,7 @@ class AuthController {
 
     return new SuccessResponse({
       message: AUTH_MESSAGES.REFRESH_TOKEN_SUCCESS,
-      metadata: await AuthService.getRefreshToken(
+      data: await AuthService.getRefreshToken(
         cookies.refreshToken || null,
         res,
       ),

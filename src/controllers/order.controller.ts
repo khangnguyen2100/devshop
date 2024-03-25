@@ -33,7 +33,7 @@ class OrderController {
     const keyStored = getKeyStored(req);
     new OK({
       message: 'Get data successfully!',
-      metadata: await OrderService.getCheckoutReview({
+      data: await OrderService.getCheckoutReview({
         userId: keyStored.user,
         orderData: req.body,
       }),
@@ -57,7 +57,7 @@ class OrderController {
     const body = req.body;
     new OK({
       message: 'Get data successfully!',
-      metadata: await OrderService.orderByUser({
+      data: await OrderService.orderByUser({
         userId: keyStored.user,
 
         orderData: req.body.orderData,
@@ -80,7 +80,7 @@ class OrderController {
     const keyStored = getKeyStored(req);
     new OK({
       message: 'Canceled order successfully!',
-      metadata: await OrderService.cancelOrderByUser({
+      data: await OrderService.cancelOrderByUser({
         orderId: orderId as string,
         orderUserId: keyStored.user,
         cartId: cartId as string,
@@ -100,7 +100,7 @@ class OrderController {
     const keyStored = getKeyStored(req);
     new OK({
       message: 'Changed order status successfully!',
-      metadata: await OrderService.updateOrderStatusByShop({
+      data: await OrderService.updateOrderStatusByShop({
         orderId: orderId as string,
         orderUserId: keyStored.user,
         oldStatus: oldStatus as OrderStatus,

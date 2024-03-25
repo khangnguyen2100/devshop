@@ -25,7 +25,7 @@ class DiscountController {
     const { discountCode, shopId } = req.query;
     new OK({
       message: 'Get all available products by discount code successfully!',
-      metadata: await DiscountService.getAllAvailableProductsByDiscountCode({
+      data: await DiscountService.getAllAvailableProductsByDiscountCode({
         shopId: shopId as string,
         discountCode: discountCode as string,
       }),
@@ -42,7 +42,7 @@ class DiscountController {
     const { page, limit, shopId } = req.query;
     new OK({
       message: 'Get all discount by shop successfully!',
-      metadata: await DiscountService.getAllDiscountInShop(shopId as string, {
+      data: await DiscountService.getAllDiscountInShop(shopId as string, {
         page: Number(page) || undefined,
         limit: Number(limit) || undefined,
       }),
@@ -72,7 +72,7 @@ class DiscountController {
 
     new SuccessResponse({
       message: 'Create Discount successfully!',
-      metadata: await DiscountService.createDiscountByShop(newDiscount),
+      data: await DiscountService.createDiscountByShop(newDiscount),
     }).send(res);
   };
 
@@ -95,7 +95,7 @@ class DiscountController {
     const { discountCode, cartProducts, shopId } = req.body;
     new OK({
       message: 'Get discount amount by user successfully!',
-      metadata: await DiscountService.getDiscountAmountByUser({
+      data: await DiscountService.getDiscountAmountByUser({
         shopId: shopId as string,
         discountCode: discountCode as string,
         userId: keyStored.user,
@@ -114,7 +114,7 @@ class DiscountController {
     const { discountId } = req.params;
     new OK({
       message: 'Delete discount successfully!',
-      metadata: await DiscountService.deleteDiscountByShop(
+      data: await DiscountService.deleteDiscountByShop(
         discountId,
         keyStored.user,
       ),
@@ -133,7 +133,7 @@ class DiscountController {
     const { discountCode, shopId } = req.query;
     new OK({
       message: 'Delete discount successfully!',
-      metadata: await DiscountService.cancelDiscountByUser({
+      data: await DiscountService.cancelDiscountByUser({
         discountCode: discountCode as string,
         userId: keyStored.user,
         shopId: shopId as string,

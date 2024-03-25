@@ -26,7 +26,7 @@ class ProductController {
     };
     new SuccessResponse({
       message: 'Create Product successfully!',
-      metadata: await ProductService.createProduct(
+      data: await ProductService.createProduct(
         product.productType as TProductType,
         product,
       ),
@@ -54,7 +54,7 @@ class ProductController {
     };
     new SuccessResponse({
       message: 'Update Product successfully!',
-      metadata: await ProductService.updateProduct(
+      data: await ProductService.updateProduct(
         product.productType as TProductType,
         product,
       ),
@@ -77,7 +77,7 @@ class ProductController {
     const { page, limit } = req.query;
     new OK({
       message: 'Get all draft products successfully!',
-      metadata: await ProductService.findAllDraftsProductsByShop(
+      data: await ProductService.findAllDraftsProductsByShop(
         {
           productShop: keyStored.user,
         },
@@ -100,7 +100,7 @@ class ProductController {
     const { shopId } = req.params;
     new OK({
       message: 'Get all publish products successfully!',
-      metadata: await ProductService.findAllPublishProductsByShop(
+      data: await ProductService.findAllPublishProductsByShop(
         {
           productShop: shopId as string,
         },
@@ -125,7 +125,7 @@ class ProductController {
     const { productId } = req.params;
     new OK({
       message: 'Publish product successfully!',
-      metadata: await ProductService.publishProductByShop(
+      data: await ProductService.publishProductByShop(
         productId,
         keyStored.user,
       ),
@@ -146,7 +146,7 @@ class ProductController {
     const { quantity } = req.query;
     new OK({
       message: 'Changed product inventory successfully!',
-      metadata: await ProductService.changeInventory({
+      data: await ProductService.changeInventory({
         productId,
         quantity: Number(quantity),
         userId: keyStored.user,
@@ -164,7 +164,7 @@ class ProductController {
     const { productId } = req.params;
     new OK({
       message: 'Unpublish product successfully!',
-      metadata: await ProductService.unPublishProductByShop(
+      data: await ProductService.unPublishProductByShop(
         productId,
         keyStored.user,
       ),
@@ -188,7 +188,7 @@ class ProductController {
 
     new OK({
       message: 'Search product successfully!',
-      metadata: await ProductService.searchProductsByUser(
+      data: await ProductService.searchProductsByUser(
         {
           keyword: keyword?.toString() || '',
         },
@@ -218,7 +218,7 @@ class ProductController {
 
     new OK({
       message: 'Get all products successfully!',
-      metadata: await ProductService.findAllProductsByUser({
+      data: await ProductService.findAllProductsByUser({
         page: Number(page) || undefined,
         limit: Number(limit) || undefined,
         sort: sort?.toString() === 'desc' ? 'desc' : 'asc',
@@ -245,7 +245,7 @@ class ProductController {
     const { unSelect } = req.query;
     new OK({
       message: 'Get product',
-      metadata: await ProductService.findProductById({
+      data: await ProductService.findProductById({
         productId,
         unSelect: Number(unSelect?.length) > 0 ? (unSelect as string[]) : [],
       }),
@@ -264,7 +264,7 @@ class ProductController {
 
     new OK({
       message: 'Get product by category successfully!',
-      metadata: await ProductService.getProductInCategory({
+      data: await ProductService.getProductInCategory({
         category,
         pagination: {
           page: Number(page) || undefined,

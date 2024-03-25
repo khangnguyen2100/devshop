@@ -16,25 +16,25 @@ type PaginationProps = {
 type SuccessResponseProps = {
   message?: string;
   status?: number;
-  metadata: any;
+  data: any;
   options?: PaginationProps | null;
 };
 
 class SuccessResponse {
   message: string;
   status: number;
-  metadata: any;
+  data: any;
   options: PaginationProps | null;
 
   constructor({
     message = SuccessMessage.OK,
     status = StatusCode.OK,
-    metadata = {},
+    data = {},
     options = null,
   }: SuccessResponseProps) {
     this.status = status;
     this.message = message;
-    this.metadata = metadata;
+    this.data = data;
     this.options = options;
   }
 
@@ -42,7 +42,7 @@ class SuccessResponse {
     const responseData: SuccessResponseProps = {
       status: this.status,
       message: this.message,
-      metadata: this.metadata,
+      data: this.data,
     };
     if (this.options) {
       responseData.options = this.options;
@@ -55,19 +55,19 @@ class SuccessResponse {
 class OK extends SuccessResponse {
   constructor({
     message = SuccessMessage.OK,
-    metadata,
+    data,
     options,
   }: SuccessResponseProps) {
-    super({ message, metadata, status: StatusCode.OK, options });
+    super({ message, data, status: StatusCode.OK, options });
   }
 }
 
 class Created extends SuccessResponse {
   constructor({
     message = SuccessMessage.Created,
-    metadata,
+    data,
   }: SuccessResponseProps) {
-    super({ message, metadata, status: StatusCode.CREATED });
+    super({ message, data, status: StatusCode.CREATED });
   }
 }
 

@@ -12,7 +12,7 @@ class CartController {
     const keyStored = getKeyStored(req);
     new OK({
       message: 'Get cart data successfully!',
-      metadata: await CartService.getCartData(keyStored.user),
+      data: await CartService.getCartData(keyStored.user),
     }).send(res);
   };
 
@@ -31,7 +31,7 @@ class CartController {
 
     new OK({
       message: 'Add to cart successfully!',
-      metadata: await CartService.addToCart({
+      data: await CartService.addToCart({
         userId: keyStored.user,
         productInput: product as CartProductInput,
       }),
@@ -52,7 +52,7 @@ class CartController {
 
     new OK({
       message: 'Update Product quantity successfully!',
-      metadata: await CartService.updateProductAmount(
+      data: await CartService.updateProductAmount(
         payload as UpdateCartPayload,
       ),
     }).send(res);
@@ -71,7 +71,7 @@ class CartController {
     const { productIds } = req.body;
     new OK({
       message: 'Delete product in cart successfully!',
-      metadata: await CartService.deleteProductsInCart(
+      data: await CartService.deleteProductsInCart(
         cartId as string,
         productIds as string[],
       ),

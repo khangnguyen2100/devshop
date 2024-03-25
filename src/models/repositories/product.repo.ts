@@ -12,7 +12,7 @@ import productModel from '../product.model';
 
 const queryProduct = async ({
   query,
-  page = 1,
+  page = 0,
   limit = 50,
   sort = 'asc',
   select = [],
@@ -23,12 +23,12 @@ const queryProduct = async ({
   sort?: string;
   select?: string[];
 }) => {
-  const skip = (page - 1) * limit;
+  const skip = page * limit;
   const sortBy = {
     updatedAt: sort as SortOrder,
   };
-
-  return await productModel
+  const total = await productModel.countDocuments(query);
+  const result = await productModel
     .find(query)
     .populate('createdBy', 'name email _id')
     .sort(sortBy)
@@ -37,6 +37,12 @@ const queryProduct = async ({
     .select(getSelectData(select))
     .lean()
     .exec();
+  return {
+    page,
+    limit,
+    data: result,
+    total,
+  };
 };
 
 const getAllProducts = async ({ query }: { query: object }) => {
@@ -49,7 +55,7 @@ const getAllProducts = async ({ query }: { query: object }) => {
 
 const searchProductsByUser = async ({
   keyword,
-  page = 1,
+  page = 0,
   limit = 50,
   sort = 'asc',
   select = [],
@@ -60,7 +66,7 @@ const searchProductsByUser = async ({
   sort?: string;
   select?: string[];
 }) => {
-  const skip = (page - 1) * limit;
+  const skip = page * limit;
   const sortBy = {
     updatedAt: sort as SortOrder,
     score: { $meta: 'textScore' },

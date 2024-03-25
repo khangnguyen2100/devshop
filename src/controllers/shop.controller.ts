@@ -5,7 +5,7 @@ import { OK } from 'src/helpers/core/success.response';
 class ShopController {
   static getShop: RequestHandler = async (_req, res) => {
     new OK({
-      metadata: {
+      data: {
         name: configEnv.name,
         description: configEnv.description,
         version: configEnv.version,

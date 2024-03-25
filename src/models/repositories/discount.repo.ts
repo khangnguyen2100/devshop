@@ -8,7 +8,7 @@ import discountModel from '../discount.model';
 
 const queryDiscount = async ({
   query,
-  page = 1,
+  page = 0,
   limit = 50,
   sort = 'asc',
   select = [],
@@ -19,12 +19,12 @@ const queryDiscount = async ({
   sort?: string;
   select?: string[];
 }) => {
-  const skip = (page - 1) * limit;
+  const skip = page * limit;
   const sortBy = {
     updatedAt: sort as SortOrder,
   };
-
-  return await discountModel
+  const total = await discountModel.countDocuments(query);
+  const result = await discountModel
     .find(query)
     .populate('discountShopId', 'name email _id')
     .sort(sortBy)
@@ -33,6 +33,13 @@ const queryDiscount = async ({
     .select(getSelectData(select))
     .lean()
     .exec();
+
+  return {
+    data: result,
+    page,
+    limit,
+    total,
+  };
 };
 
 const findDiscountByCode = async (code: string, shopId: Types.ObjectId) => {
