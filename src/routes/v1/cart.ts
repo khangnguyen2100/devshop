@@ -1,12 +1,12 @@
 import express from 'express';
 import CartController from 'src/controllers/cart.controller';
-import authentication from 'src/middleware/authentication';
+import shopAuthentication from 'src/middleware/authentication';
 import { asyncHandler } from 'src/middleware/errorHandler';
 import { validate } from 'src/utils/validate';
 
 const router = express.Router();
 
-router.use(authentication);
+router.use(shopAuthentication);
 
 router.get('/', asyncHandler(CartController.getCartData));
 router.post(

@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import { Response } from 'express';
 import lodash from 'lodash';
 import { shopRole } from 'src/constants/enums/shop';
-import { AUTH_MESSAGES, COMMON_MESSAGES } from 'src/constants/messages';
 import { KeyToken } from 'src/constants/types/KeyToken';
 import Shop from 'src/constants/types/Shop';
 import storeTokens from 'src/helpers/auth/storeTokens';
@@ -12,8 +11,8 @@ import {
   UnauthorizedError,
 } from 'src/helpers/core/error.response';
 import shopModel from 'src/models/shop.model';
-import { generateTokens } from 'src/utils/generateTokens';
 import { setJWTCookies } from 'src/utils/cookieJWT';
+import { generateTokens } from 'src/utils/generateTokens';
 
 import KeyTokenService from './keyToken.service';
 
@@ -35,12 +34,12 @@ class AuthService {
     const { name, email, password, username, isShop = false } = body;
 
     if (!name || !email || !password || !username) {
-      throw new BadRequestError(COMMON_MESSAGES.MISSING_REQUIRED_FIELD);
+      throw new BadRequestError('Missing required field');
     }
     // Check if email already exists
     const findShop = await shopModel.findOne({ email }).lean();
     if (findShop) {
-      throw new BadRequestError(AUTH_MESSAGES.EMAIL_EXISTED);
+      throw new BadRequestError('Email already exists');
     }
 
     // create new shop
@@ -56,7 +55,7 @@ class AuthService {
       roles: [isShop ? shopRole.SHOP : shopRole.USER],
     });
     if (!newShop) {
-      throw new BadRequestError(AUTH_MESSAGES.SIGNUP_ERROR);
+      throw new BadRequestError('Create shop error');
     }
 
     // generate and store tokens
@@ -83,7 +82,7 @@ class AuthService {
     // Check inputs
     const { email: enteredEmail, password: enteredPassword } = body;
     if (!enteredEmail || !enteredPassword) {
-      throw new BadRequestError(COMMON_MESSAGES.MISSING_REQUIRED_FIELD);
+      throw new BadRequestError('Missing required field');
     }
 
     // Check if email in db
@@ -92,13 +91,13 @@ class AuthService {
       .select('+password')
       .lean();
     if (!findShop) {
-      throw new UnauthorizedError(AUTH_MESSAGES.SHOP_NOT_REGISTERED);
+      throw new UnauthorizedError('Your email is not registered yet!');
     }
 
     // Compare password
     const isPwMatch = await bcrypt.compare(enteredPassword, findShop.password);
     if (!isPwMatch) {
-      throw new UnauthorizedError(AUTH_MESSAGES.PASSWORD_INCORRECT);
+      throw new UnauthorizedError('Password is incorrect');
     }
 
     // generate and store tokens
@@ -129,7 +128,7 @@ class AuthService {
   static logout = async (keyStored: KeyToken) => {
     const deletedKey = await KeyTokenService.removeById(keyStored._id);
     if (!deletedKey) {
-      throw new BadRequestError(AUTH_MESSAGES.LOGOUT_ERROR);
+      throw new BadRequestError('Logout failed');
     }
     return {};
   };
@@ -155,7 +154,7 @@ class AuthService {
     const findKeyStored =
       await KeyTokenService.findByRefreshToken(refreshToken);
     if (!findKeyStored) {
-      throw new UnauthorizedError(AUTH_MESSAGES.NOT_LOGGED_IN);
+      throw new UnauthorizedError('You are not logged in yet!');
     }
 
     const shopInfo = findKeyStored.user as unknown as Shop;

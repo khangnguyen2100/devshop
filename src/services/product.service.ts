@@ -1,6 +1,5 @@
 import { isNumber } from 'lodash';
 import { Types, isValidObjectId } from 'mongoose';
-import { COMMON_MESSAGES } from 'src/constants/messages';
 import TProduct, {
   TProductInput,
   TProductType,
@@ -184,7 +183,7 @@ class ProductFactory {
       throw new BadRequestError(`Invalid Product type: ${type}`);
     }
     if (!payload) {
-      throw new BadRequestError(COMMON_MESSAGES.MISSING_REQUIRED_FIELD);
+      throw new BadRequestError('Missing required field');
     }
 
     return new ProductClass(payload).createProduct();

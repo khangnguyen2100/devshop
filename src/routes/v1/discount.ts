@@ -1,6 +1,6 @@
 import express from 'express';
 import DiscountController from 'src/controllers/discount.controller';
-import authentication from 'src/middleware/authentication';
+import shopAuthentication from 'src/middleware/authentication';
 import { asyncHandler } from 'src/middleware/errorHandler';
 import { validate } from 'src/utils/validate';
 
@@ -19,7 +19,7 @@ router.get(
   asyncHandler(DiscountController.getAllDiscountInShop),
 );
 
-router.use(authentication);
+router.use(shopAuthentication);
 
 router.get(
   '/get-discount-amount',

@@ -1,5 +1,4 @@
 import JWT from 'jsonwebtoken';
-import { AUTH_MESSAGES } from 'src/constants/messages';
 import { JWTPayload } from 'src/constants/types/Shop';
 import { UnauthorizedError } from 'src/helpers/core/error.response';
 
@@ -14,7 +13,9 @@ const verifyTokens = async (
     }) as unknown as JWTPayload;
     return data;
   } catch (error: any) {
-    throw new UnauthorizedError(AUTH_MESSAGES.TOKEN_INVALID);
+    throw new UnauthorizedError(
+      'Token is invalid or expired! Please login again to get a new one.',
+    );
   }
 };
 

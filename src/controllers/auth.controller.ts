@@ -1,5 +1,4 @@
 import { RequestHandler } from 'express';
-import { AUTH_MESSAGES } from 'src/constants/messages';
 import { Created, SuccessResponse } from 'src/helpers/core/success.response';
 import AuthService from 'src/services/auth.service';
 import { clearJWTCookies, getJWTCookies } from 'src/utils/cookieJWT';
@@ -17,7 +16,7 @@ class AuthController {
   });
   static signUp: RequestHandler = async (req, res) => {
     return new Created({
-      message: AUTH_MESSAGES.SIGNUP_SUCCESS,
+      message: 'Shop created successfully!',
       data: await AuthService.signUp(req.body, res),
     }).send(res);
   };
@@ -30,7 +29,7 @@ class AuthController {
   });
   static login: RequestHandler = async (req, res) => {
     return new SuccessResponse({
-      message: AUTH_MESSAGES.LOGIN_SUCCESS,
+      message: 'Login successful',
       data: await AuthService.login(req.body, res),
     }).send(res);
   };
@@ -40,7 +39,7 @@ class AuthController {
     // clear cookies
     clearJWTCookies(res);
     return new SuccessResponse({
-      message: AUTH_MESSAGES.LOGOUT_SUCCESS,
+      message: 'Logout successful',
       data: await AuthService.logout(keyStored),
     }).send(res);
   };
@@ -49,7 +48,7 @@ class AuthController {
     const cookies = getJWTCookies(req);
 
     return new SuccessResponse({
-      message: AUTH_MESSAGES.REFRESH_TOKEN_SUCCESS,
+      message: 'Create refresh token successfully!',
       data: await AuthService.getRefreshToken(
         cookies.refreshToken || null,
         res,

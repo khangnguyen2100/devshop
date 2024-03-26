@@ -1,6 +1,6 @@
 import express from 'express';
 import ProductController from 'src/controllers/product.controller';
-import authentication from 'src/middleware/authentication';
+import shopAuthentication from 'src/middleware/authentication';
 import { asyncHandler } from 'src/middleware/errorHandler';
 import { validate } from 'src/utils/validate';
 
@@ -32,7 +32,7 @@ router.get(
   asyncHandler(ProductController.getAllPublishProductsInShop),
 );
 
-router.use(authentication);
+router.use(shopAuthentication);
 
 router.post(
   '/createNew',
