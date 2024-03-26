@@ -19,6 +19,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    productImages: {
+      type: Array,
+      default: [],
+    },
     productPrice: {
       type: Number,
       required: true,

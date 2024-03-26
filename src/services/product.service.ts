@@ -30,6 +30,7 @@ import { convertToObjectId } from 'src/utils/common';
 class ProductBase {
   productName: string;
   productThumb: string;
+  productImages: string[];
   productPrice: number;
   productQuantity: number;
   productDescription: string | null | undefined;
@@ -41,6 +42,7 @@ class ProductBase {
     const {
       productName,
       productThumb,
+      productImages,
       productPrice,
       productQuantity,
       productDescription,
@@ -51,6 +53,7 @@ class ProductBase {
 
     this.productName = productName;
     this.productThumb = productThumb;
+    this.productImages = productImages;
     this.productPrice = productPrice;
     this.productQuantity = productQuantity;
     this.productDescription = productDescription;
@@ -63,6 +66,7 @@ class ProductBase {
     const newProduct = await productModel.create({
       productName: this.productName,
       productThumb: this.productThumb,
+      productImages: this.productImages,
       productPrice: this.productPrice,
       // productQuantity: this.productQuantity,
       productDescription: this.productDescription,
