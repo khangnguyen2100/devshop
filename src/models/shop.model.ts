@@ -11,6 +11,13 @@ const shopSchema = new mongoose.Schema(
       maxLength: 150,
       required: true,
     },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      maxLength: 50,
+    },
     email: {
       type: String,
       required: true,
@@ -27,11 +34,11 @@ const shopSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['active', 'inactive'],
-      default: 'inactive',
+      default: 'active',
     },
     verify: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     roles: {
       type: Array,

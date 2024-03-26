@@ -2,6 +2,7 @@ type Shop = {
   _id: string;
   name: string;
   email: string;
+  username: string;
   password?: string;
   status: 'active' | 'inactive';
   verify: boolean;
@@ -12,6 +13,7 @@ type Shop = {
 export type JWTPayload = {
   userId: string;
   email: string;
+  username: string;
   roles: string[];
 };
 export default Shop;

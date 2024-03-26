@@ -30,7 +30,7 @@ const queryProduct = async ({
   const total = await productModel.countDocuments(query);
   const result = await productModel
     .find(query)
-    .populate('createdBy', 'name email _id')
+    .populate('createdBy', 'name email username _id')
     .sort(sortBy)
     .skip(skip)
     .limit(limit)
@@ -48,7 +48,7 @@ const queryProduct = async ({
 const getAllProducts = async ({ query }: { query: object }) => {
   return await productModel
     .find(query)
-    .populate('createdBy', 'name email _id')
+    .populate('createdBy', 'name email username _id')
     .lean()
     .exec();
 };
@@ -84,7 +84,7 @@ const searchProductsByUser = async ({
   const total = await productModel.countDocuments(query);
   const results = await productModel
     .find(query, score)
-    .populate('createdBy', 'name email _id')
+    .populate('createdBy', 'name email username _id')
     .sort(sortBy)
     .skip(skip)
     .limit(limit)
@@ -165,7 +165,7 @@ const findProductById = async ({
 
   const foundProduct = await productModel
     .findOne(query)
-    .populate('createdBy', 'name email _id')
+    .populate('createdBy', 'name email username _id')
     .select(getUnSelectData(unSelect))
     .lean();
 

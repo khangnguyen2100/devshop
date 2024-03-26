@@ -1,5 +1,5 @@
 export const shopRole: { [key: string]: string } = {
-  VIEW: 'VIEW',
-  EDIT: 'EDIT',
-  ADMIN: 'ADMIN',
+  SUPPER_ADMIN: 'SUPPER_ADMIN',
+  SHOP: 'SHOP',
+  USER: 'USER',
 };

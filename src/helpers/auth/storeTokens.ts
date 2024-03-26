@@ -7,6 +7,7 @@ import { BadRequestError } from '../core/error.response';
 interface StoreTokensPayload {
   userId: string;
   email: string;
+  username: string;
   roles: string[];
 }
 

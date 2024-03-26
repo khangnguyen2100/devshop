@@ -26,7 +26,7 @@ const queryDiscount = async ({
   const total = await discountModel.countDocuments(query);
   const result = await discountModel
     .find(query)
-    .populate('discountShopId', 'name email _id')
+    .populate('discountShopId', 'name email username _id')
     .sort(sortBy)
     .skip(skip)
     .limit(limit)

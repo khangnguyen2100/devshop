@@ -20,7 +20,9 @@ import KeyTokenService from './keyToken.service';
 type SignUpBody = {
   name: string | null;
   email: string | null;
+  username: string | null;
   password: string | null;
+  isShop?: boolean;
 };
 type LoginBody = {
   email: string | null;
@@ -30,9 +32,9 @@ type LoginBody = {
 
 class AuthService {
   static signUp = async (body: SignUpBody, res: Response) => {
-    const { name, email, password } = body;
+    const { name, email, password, username, isShop = false } = body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !username) {
       throw new BadRequestError(COMMON_MESSAGES.MISSING_REQUIRED_FIELD);
     }
     // Check if email already exists
@@ -45,8 +47,13 @@ class AuthService {
     const newShop = await shopModel.create({
       name,
       email: email.toLowerCase(),
+      username: username
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/ /g, '_'),
       password,
-      roles: [shopRole.VIEW],
+      roles: [isShop ? shopRole.SHOP : shopRole.USER],
     });
     if (!newShop) {
       throw new BadRequestError(AUTH_MESSAGES.SIGNUP_ERROR);
@@ -56,6 +63,7 @@ class AuthService {
     const payload = {
       userId: newShop._id.toString(),
       email: newShop.email,
+      username: newShop.username,
       roles: newShop.roles,
     };
     const { accessToken, refreshToken } = await storeTokens(
@@ -66,7 +74,7 @@ class AuthService {
     setJWTCookies(res, refreshToken);
 
     return {
-      data: lodash.pick(newShop, ['_id', 'name', 'email', 'roles']),
+      data: lodash.pick(newShop, ['_id', 'name', 'email', 'username', 'roles']),
       accessToken,
     };
   };
@@ -97,6 +105,7 @@ class AuthService {
     const payload = {
       userId: findShop._id.toString(),
       email: findShop.email,
+      username: findShop.username,
       roles: findShop.roles,
     };
     const { accessToken, refreshToken } = await storeTokens(
@@ -107,7 +116,13 @@ class AuthService {
     setJWTCookies(res, refreshToken);
 
     return {
-      data: lodash.pick(findShop, ['_id', 'name', 'email', 'roles']),
+      data: lodash.pick(findShop, [
+        '_id',
+        'name',
+        'email',
+        'username',
+        'roles',
+      ]),
       accessToken,
     };
   };
@@ -147,6 +162,7 @@ class AuthService {
     const payload = {
       userId: shopInfo._id.toString(),
       email: shopInfo.email,
+      username: shopInfo.username,
       roles: shopInfo.roles,
     };
     const { accessToken, refreshToken: newRefreshToken } = await generateTokens(

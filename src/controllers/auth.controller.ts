@@ -12,6 +12,7 @@ class AuthController {
       email: Yup.string().email().required(),
       password: Yup.string().min(6).max(20).required(),
       name: Yup.string().required(),
+      username: Yup.string().required(),
     }),
   });
   static signUp: RequestHandler = async (req, res) => {

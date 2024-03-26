@@ -6,6 +6,7 @@ type TProduct = {
   productName: string;
   productDescription?: string | null;
   productThumb: string;
+  productImages: string[];
   productPrice: number;
   productQuantity: number;
   productType: TProductType | string;
@@ -22,6 +23,7 @@ export type TProductResponse = TProduct & {
   isPublished: boolean;
   createdBy: {
     name: string;
+    username: string;
     email: string;
     _id: string;
   };
