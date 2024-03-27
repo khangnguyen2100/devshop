@@ -228,20 +228,14 @@ class ProductFactory {
     userId: string;
   }) => {
     const { productId, quantity, userId } = props;
-    if (!isValidObjectId(productId)) {
-      throw new BadRequestError('Product Id is not valid');
-    }
-    if (!isNumber(quantity)) {
-      throw new BadRequestError('Quantity must be a number');
-    }
 
     const updatedProduct = await updateInventory({
       productId,
       newQuantity: quantity,
       userId,
     });
-    if (!updatedProduct) {
-      throw new BadRequestError('Update inventory failed!');
+    if (updatedProduct.modifiedCount == 0) {
+      throw new BadRequestError('Product is not found in your shop');
     }
   };
 
